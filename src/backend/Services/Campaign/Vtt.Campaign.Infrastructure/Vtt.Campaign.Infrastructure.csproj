@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>Vtt.Campaign.Infrastructure</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Vtt.Campaign.Application\Vtt.Campaign.Application.csproj" />
+    <ProjectReference Include="..\Vtt.Campaign.Domain\Vtt.Campaign.Domain.csproj" />
+  </ItemGroup>
+</Project>

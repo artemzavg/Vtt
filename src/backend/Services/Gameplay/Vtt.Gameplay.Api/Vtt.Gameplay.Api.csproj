@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <RootNamespace>Vtt.Gameplay.Api</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\BuildingBlocks\Vtt.ServiceDefaults\Vtt.ServiceDefaults.csproj" />
+    <ProjectReference Include="..\Vtt.Gameplay.Application\Vtt.Gameplay.Application.csproj" />
+    <ProjectReference Include="..\Vtt.Gameplay.Contracts\Vtt.Gameplay.Contracts.csproj" />
+    <ProjectReference Include="..\Vtt.Gameplay.Infrastructure\Vtt.Gameplay.Infrastructure.csproj" />
+  </ItemGroup>
+</Project>

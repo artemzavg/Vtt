@@ -1,0 +1,29 @@
+FROM mcr.microsoft.com/dotnet/sdk:10.0.302-alpine3.23 AS build
+WORKDIR /source
+
+COPY global.json Directory.Build.props Directory.Build.targets Directory.Packages.props NuGet.config ./
+COPY src/backend ./src/backend
+ARG PROJECT_PATH
+RUN dotnet restore "$PROJECT_PATH" --configfile NuGet.config
+RUN dotnet publish "$PROJECT_PATH" \
+    --configuration Release \
+    --no-restore \
+    --output /app/publish \
+    /p:UseAppHost=false
+
+FROM mcr.microsoft.com/dotnet/aspnet:10.0.10-alpine3.23 AS runtime
+WORKDIR /app
+
+ARG API_ASSEMBLY
+ENV ASPNETCORE_HTTP_PORTS=8080 \
+    DOTNET_EnableDiagnostics=0 \
+    VTT_API_ASSEMBLY=$API_ASSEMBLY
+
+COPY --from=build /app/publish .
+USER $APP_UID
+EXPOSE 8080
+
+HEALTHCHECK --interval=10s --timeout=3s --start-period=10s --retries=5 \
+  CMD wget -q -O /dev/null http://127.0.0.1:8080/health/live || exit 1
+
+ENTRYPOINT ["/bin/sh", "-c", "exec dotnet \"$VTT_API_ASSEMBLY\""]

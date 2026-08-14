@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>Vtt.Identity.Infrastructure</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Vtt.Identity.Application\Vtt.Identity.Application.csproj" />
+    <ProjectReference Include="..\Vtt.Identity.Domain\Vtt.Identity.Domain.csproj" />
+  </ItemGroup>
+</Project>

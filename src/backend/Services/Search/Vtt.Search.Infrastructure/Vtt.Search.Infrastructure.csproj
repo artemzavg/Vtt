@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>Vtt.Search.Infrastructure</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Vtt.Search.Application\Vtt.Search.Application.csproj" />
+    <ProjectReference Include="..\Vtt.Search.Domain\Vtt.Search.Domain.csproj" />
+  </ItemGroup>
+</Project>

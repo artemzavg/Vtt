@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <RootNamespace>Vtt.Session.Api</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\BuildingBlocks\Vtt.ServiceDefaults\Vtt.ServiceDefaults.csproj" />
+    <ProjectReference Include="..\Vtt.Session.Application\Vtt.Session.Application.csproj" />
+    <ProjectReference Include="..\Vtt.Session.Contracts\Vtt.Session.Contracts.csproj" />
+    <ProjectReference Include="..\Vtt.Session.Infrastructure\Vtt.Session.Infrastructure.csproj" />
+  </ItemGroup>
+</Project>

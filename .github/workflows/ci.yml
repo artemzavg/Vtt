@@ -1,0 +1,70 @@
+name: foundation-ci
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+          cache: true
+          cache-dependency-path: Directory.Packages.props
+      - name: Restore
+        run: dotnet restore Vtt.slnx --configfile NuGet.config
+      - name: Format
+        run: dotnet format Vtt.slnx --verify-no-changes --no-restore
+      - name: Build
+        run: dotnet build Vtt.slnx --configuration Release --no-restore
+      - name: Test
+        run: dotnet test Vtt.slnx --configuration Release --no-build --logger trx
+      - name: Publish APIs
+        shell: pwsh
+        run: |
+          Get-ChildItem src/backend/Services -Recurse -Filter *.Api.csproj |
+            ForEach-Object {
+              dotnet publish $_.FullName --configuration Release --no-restore --output "artifacts/publish/$($_.BaseName)"
+              if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+            }
+
+  frontend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.19.0
+          run_install: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.21.1
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm test
+      - run: pnpm build
+      - run: pnpm format:check
+      - run: pnpm security:scan
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm e2e
+
+  compose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker compose -f deploy/compose/compose.yaml --profile "*" config --quiet
+      - name: Build representative non-root images
+        run: docker compose -f deploy/compose/compose.yaml --profile apps build edge web

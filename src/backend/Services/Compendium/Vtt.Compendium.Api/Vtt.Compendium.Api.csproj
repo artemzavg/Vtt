@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <RootNamespace>Vtt.Compendium.Api</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\BuildingBlocks\Vtt.ServiceDefaults\Vtt.ServiceDefaults.csproj" />
+    <ProjectReference Include="..\Vtt.Compendium.Application\Vtt.Compendium.Application.csproj" />
+    <ProjectReference Include="..\Vtt.Compendium.Contracts\Vtt.Compendium.Contracts.csproj" />
+    <ProjectReference Include="..\Vtt.Compendium.Infrastructure\Vtt.Compendium.Infrastructure.csproj" />
+  </ItemGroup>
+</Project>

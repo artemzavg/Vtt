@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>Vtt.Ruleset.Infrastructure</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Vtt.Ruleset.Application\Vtt.Ruleset.Application.csproj" />
+    <ProjectReference Include="..\Vtt.Ruleset.Domain\Vtt.Ruleset.Domain.csproj" />
+  </ItemGroup>
+</Project>

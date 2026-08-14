@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <RootNamespace>Vtt.Media.Api</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\BuildingBlocks\Vtt.ServiceDefaults\Vtt.ServiceDefaults.csproj" />
+    <ProjectReference Include="..\Vtt.Media.Application\Vtt.Media.Application.csproj" />
+    <ProjectReference Include="..\Vtt.Media.Contracts\Vtt.Media.Contracts.csproj" />
+    <ProjectReference Include="..\Vtt.Media.Infrastructure\Vtt.Media.Infrastructure.csproj" />
+  </ItemGroup>
+</Project>

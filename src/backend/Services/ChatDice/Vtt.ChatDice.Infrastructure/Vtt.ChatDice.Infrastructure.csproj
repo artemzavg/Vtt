@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>Vtt.ChatDice.Infrastructure</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Vtt.ChatDice.Application\Vtt.ChatDice.Application.csproj" />
+    <ProjectReference Include="..\Vtt.ChatDice.Domain\Vtt.ChatDice.Domain.csproj" />
+  </ItemGroup>
+</Project>

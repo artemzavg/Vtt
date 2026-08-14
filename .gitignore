@@ -1,0 +1,35 @@
+bin/
+obj/
+/packages/
+riderModule.iml
+/_ReSharper.Caches/
+
+# IDE and local tooling
+.idea/
+.vscode/
+*.user
+*.suo
+
+# .NET
+TestResults/
+artifacts/
+coverage/
+*.trx
+
+# Frontend
+node_modules/
+.pnpm-store/
+dist/
+playwright-report/
+test-results/
+.vite/
+
+# Local configuration and credentials
+.env
+.env.*
+!.env.example
+deploy/compose/.env
+
+# OS files
+.DS_Store
+Thumbs.db

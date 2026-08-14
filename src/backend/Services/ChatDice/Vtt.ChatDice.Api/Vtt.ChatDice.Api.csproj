@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <RootNamespace>Vtt.ChatDice.Api</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\BuildingBlocks\Vtt.ServiceDefaults\Vtt.ServiceDefaults.csproj" />
+    <ProjectReference Include="..\Vtt.ChatDice.Application\Vtt.ChatDice.Application.csproj" />
+    <ProjectReference Include="..\Vtt.ChatDice.Contracts\Vtt.ChatDice.Contracts.csproj" />
+    <ProjectReference Include="..\Vtt.ChatDice.Infrastructure\Vtt.ChatDice.Infrastructure.csproj" />
+  </ItemGroup>
+</Project>

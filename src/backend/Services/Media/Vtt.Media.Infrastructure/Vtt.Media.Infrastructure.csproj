@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>Vtt.Media.Infrastructure</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Vtt.Media.Application\Vtt.Media.Application.csproj" />
+    <ProjectReference Include="..\Vtt.Media.Domain\Vtt.Media.Domain.csproj" />
+  </ItemGroup>
+</Project>

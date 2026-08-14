@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <RootNamespace>Vtt.Scene.Api</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\BuildingBlocks\Vtt.ServiceDefaults\Vtt.ServiceDefaults.csproj" />
+    <ProjectReference Include="..\Vtt.Scene.Application\Vtt.Scene.Application.csproj" />
+    <ProjectReference Include="..\Vtt.Scene.Contracts\Vtt.Scene.Contracts.csproj" />
+    <ProjectReference Include="..\Vtt.Scene.Infrastructure\Vtt.Scene.Infrastructure.csproj" />
+  </ItemGroup>
+</Project>

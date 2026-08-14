@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>Vtt.Edge.Infrastructure</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Vtt.Edge.Application\Vtt.Edge.Application.csproj" />
+    <ProjectReference Include="..\Vtt.Edge.Domain\Vtt.Edge.Domain.csproj" />
+  </ItemGroup>
+</Project>

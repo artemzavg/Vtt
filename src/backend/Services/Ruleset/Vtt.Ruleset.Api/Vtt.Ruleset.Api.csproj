@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <RootNamespace>Vtt.Ruleset.Api</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\BuildingBlocks\Vtt.ServiceDefaults\Vtt.ServiceDefaults.csproj" />
+    <ProjectReference Include="..\Vtt.Ruleset.Application\Vtt.Ruleset.Application.csproj" />
+    <ProjectReference Include="..\Vtt.Ruleset.Contracts\Vtt.Ruleset.Contracts.csproj" />
+    <ProjectReference Include="..\Vtt.Ruleset.Infrastructure\Vtt.Ruleset.Infrastructure.csproj" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <RootNamespace>Vtt.Character.Api</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\BuildingBlocks\Vtt.ServiceDefaults\Vtt.ServiceDefaults.csproj" />
+    <ProjectReference Include="..\Vtt.Character.Application\Vtt.Character.Application.csproj" />
+    <ProjectReference Include="..\Vtt.Character.Contracts\Vtt.Character.Contracts.csproj" />
+    <ProjectReference Include="..\Vtt.Character.Infrastructure\Vtt.Character.Infrastructure.csproj" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <RootNamespace>Vtt.Search.Api</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\BuildingBlocks\Vtt.ServiceDefaults\Vtt.ServiceDefaults.csproj" />
+    <ProjectReference Include="..\Vtt.Search.Application\Vtt.Search.Application.csproj" />
+    <ProjectReference Include="..\Vtt.Search.Contracts\Vtt.Search.Contracts.csproj" />
+    <ProjectReference Include="..\Vtt.Search.Infrastructure\Vtt.Search.Infrastructure.csproj" />
+  </ItemGroup>
+</Project>

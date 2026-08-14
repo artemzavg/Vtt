@@ -1,0 +1,5 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>Vtt.Search.Domain</RootNamespace>
+  </PropertyGroup>
+</Project>

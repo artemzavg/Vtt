@@ -1,0 +1,5 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>Vtt.Media.Domain</RootNamespace>
+  </PropertyGroup>
+</Project>

@@ -1,0 +1,18 @@
+{
+  "name": "@vtt/web",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc --build && vite build && node scripts/check-bundle-size.mjs",
+    "dev": "vite",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "typecheck": "tsc --build --pretty false"
+  },
+  "dependencies": {
+    "@vtt/api-client": "workspace:*",
+    "react": "catalog:",
+    "react-dom": "catalog:"
+  }
+}

@@ -1,0 +1,594 @@
+name: vtt
+
+x-api-common: &api-common
+  profiles: ["apps"]
+  restart: unless-stopped
+  init: true
+  environment:
+    ASPNETCORE_ENVIRONMENT: Development
+    VTT_READINESS_TCP_ENDPOINTS: postgres:5432;nats:4222
+    OTEL_EXPORTER_OTLP_ENDPOINT: ${VTT_OTEL_EXPORTER_OTLP_ENDPOINT:-http://otel-collector:4317}
+    OTEL_EXPORTER_OTLP_PROTOCOL: grpc
+  depends_on:
+    postgres:
+      condition: service_healthy
+    nats:
+      condition: service_healthy
+    otel-collector:
+      condition: service_started
+      required: false
+  networks:
+    - vtt
+  security_opt:
+    - no-new-privileges:true
+  read_only: true
+  tmpfs:
+    - /tmp
+  healthcheck:
+    test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:8080/health/ready"]
+    interval: 10s
+    timeout: 3s
+    start_period: 15s
+    retries: 5
+  deploy:
+    resources:
+      limits:
+        cpus: "0.50"
+        memory: 256M
+
+services:
+  postgres:
+    image: vtt/postgres:17.6-foundation
+    build:
+      context: ../..
+      dockerfile: deploy/compose/Dockerfile.postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_SUPERUSER:-vtt_admin}
+      POSTGRES_PASSWORD: ${POSTGRES_SUPERUSER_PASSWORD:-local-only-postgres}
+      POSTGRES_DB: postgres
+      VTT_LOCAL_DB_PASSWORD: ${VTT_LOCAL_DB_PASSWORD:-local-only-service-db}
+    ports:
+      - "127.0.0.1:${VTT_POSTGRES_PORT:-55432}:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - vtt
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${POSTGRES_SUPERUSER:-vtt_admin} -d postgres",
+        ]
+      interval: 5s
+      timeout: 3s
+      start_period: 10s
+      retries: 10
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 768M
+
+  nats:
+    image: nats:2.11.3-alpine
+    restart: unless-stopped
+    command:
+      [
+        "--jetstream",
+        "--store_dir",
+        "/data/jetstream",
+        "--http_port",
+        "8222",
+        "--server_name",
+        "vtt-local",
+      ]
+    ports:
+      - "127.0.0.1:${VTT_NATS_PORT:-54222}:4222"
+      - "127.0.0.1:${VTT_NATS_MONITOR_PORT:-58222}:8222"
+    volumes:
+      - nats-data:/data
+    networks:
+      - vtt
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:8222/healthz"]
+      interval: 5s
+      timeout: 3s
+      start_period: 5s
+      retries: 10
+    deploy:
+      resources:
+        limits:
+          cpus: "0.50"
+          memory: 256M
+
+  nats-init:
+    image: natsio/nats-box:0.17.0
+    restart: "no"
+    depends_on:
+      nats:
+        condition: service_healthy
+    entrypoint: ["/bin/sh", "-ec"]
+    command:
+      - >-
+        nats --server nats:4222 stream info VTT_EVENTS >/dev/null 2>&1 ||
+        nats --server nats:4222 stream add VTT_EVENTS
+        --subjects "vtt.>" --storage file --retention limits
+        --max-age 168h --replicas 1 --defaults
+    networks:
+      - vtt
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: 64M
+
+  redis:
+    image: redis:7.4.2-alpine
+    restart: unless-stopped
+    command:
+      [
+        "redis-server",
+        "--appendonly",
+        "yes",
+        "--appendfsync",
+        "everysec",
+        "--maxmemory",
+        "128mb",
+        "--maxmemory-policy",
+        "allkeys-lru",
+        "--save",
+        "60",
+        "1000",
+        "--requirepass",
+        "${REDIS_PASSWORD:-local-only-redis}",
+      ]
+    ports:
+      - "127.0.0.1:${VTT_REDIS_PORT:-56379}:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - vtt
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "REDISCLI_AUTH=${REDIS_PASSWORD:-local-only-redis} redis-cli ping | grep PONG",
+        ]
+      interval: 5s
+      timeout: 3s
+      start_period: 5s
+      retries: 10
+    deploy:
+      resources:
+        limits:
+          cpus: "0.50"
+          memory: 192M
+
+  minio:
+    image: minio/minio:RELEASE.2025-04-22T22-12-26Z
+    restart: unless-stopped
+    command: ["server", "/data", "--console-address", ":9001"]
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-vtt_local_admin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-local-only-minio-password}
+    ports:
+      - "127.0.0.1:${VTT_MINIO_PORT:-59000}:9000"
+      - "127.0.0.1:${VTT_MINIO_CONSOLE_PORT:-59001}:9001"
+    volumes:
+      - minio-data:/data
+    networks:
+      - vtt
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://127.0.0.1:9000/minio/health/live"]
+      interval: 5s
+      timeout: 3s
+      start_period: 10s
+      retries: 10
+    deploy:
+      resources:
+        limits:
+          cpus: "0.75"
+          memory: 512M
+
+  minio-init:
+    image: minio/mc:RELEASE.2025-04-16T18-13-26Z
+    restart: "no"
+    depends_on:
+      minio:
+        condition: service_healthy
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-vtt_local_admin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-local-only-minio-password}
+    entrypoint: ["/bin/sh", "-ec"]
+    command:
+      - >-
+        mc alias set local http://minio:9000 "$$MINIO_ROOT_USER" "$$MINIO_ROOT_PASSWORD";
+        mc mb --ignore-existing local/vtt-media;
+        mc mb --ignore-existing local/vtt-exports;
+        mc anonymous set none local/vtt-media;
+        mc anonymous set none local/vtt-exports
+    networks:
+      - vtt
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: 64M
+
+  edge:
+    <<: *api-common
+    image: vtt/edge:0.0.0-foundation
+    build:
+      context: ../..
+      dockerfile: deploy/compose/Dockerfile.api
+      args:
+        PROJECT_PATH: src/backend/Services/Edge/Vtt.Edge.Api/Vtt.Edge.Api.csproj
+        API_ASSEMBLY: Vtt.Edge.Api.dll
+    ports:
+      - "127.0.0.1:5100:8080"
+
+  identity:
+    <<: *api-common
+    image: vtt/identity:0.0.0-foundation
+    build:
+      context: ../..
+      dockerfile: deploy/compose/Dockerfile.api
+      args:
+        PROJECT_PATH: src/backend/Services/Identity/Vtt.Identity.Api/Vtt.Identity.Api.csproj
+        API_ASSEMBLY: Vtt.Identity.Api.dll
+    ports:
+      - "127.0.0.1:5101:8080"
+
+  campaign:
+    <<: *api-common
+    image: vtt/campaign:0.0.0-foundation
+    build:
+      context: ../..
+      dockerfile: deploy/compose/Dockerfile.api
+      args:
+        PROJECT_PATH: src/backend/Services/Campaign/Vtt.Campaign.Api/Vtt.Campaign.Api.csproj
+        API_ASSEMBLY: Vtt.Campaign.Api.dll
+    ports:
+      - "127.0.0.1:5102:8080"
+
+  ruleset:
+    <<: *api-common
+    image: vtt/ruleset:0.0.0-foundation
+    build:
+      context: ../..
+      dockerfile: deploy/compose/Dockerfile.api
+      args:
+        PROJECT_PATH: src/backend/Services/Ruleset/Vtt.Ruleset.Api/Vtt.Ruleset.Api.csproj
+        API_ASSEMBLY: Vtt.Ruleset.Api.dll
+    ports:
+      - "127.0.0.1:5103:8080"
+
+  compendium:
+    <<: *api-common
+    image: vtt/compendium:0.0.0-foundation
+    build:
+      context: ../..
+      dockerfile: deploy/compose/Dockerfile.api
+      args:
+        PROJECT_PATH: src/backend/Services/Compendium/Vtt.Compendium.Api/Vtt.Compendium.Api.csproj
+        API_ASSEMBLY: Vtt.Compendium.Api.dll
+    ports:
+      - "127.0.0.1:5104:8080"
+
+  character:
+    <<: *api-common
+    image: vtt/character:0.0.0-foundation
+    build:
+      context: ../..
+      dockerfile: deploy/compose/Dockerfile.api
+      args:
+        PROJECT_PATH: src/backend/Services/Character/Vtt.Character.Api/Vtt.Character.Api.csproj
+        API_ASSEMBLY: Vtt.Character.Api.dll
+    ports:
+      - "127.0.0.1:5105:8080"
+
+  media:
+    <<: *api-common
+    image: vtt/media:0.0.0-foundation
+    build:
+      context: ../..
+      dockerfile: deploy/compose/Dockerfile.api
+      args:
+        PROJECT_PATH: src/backend/Services/Media/Vtt.Media.Api/Vtt.Media.Api.csproj
+        API_ASSEMBLY: Vtt.Media.Api.dll
+    ports:
+      - "127.0.0.1:5106:8080"
+
+  scene:
+    <<: *api-common
+    image: vtt/scene:0.0.0-foundation
+    build:
+      context: ../..
+      dockerfile: deploy/compose/Dockerfile.api
+      args:
+        PROJECT_PATH: src/backend/Services/Scene/Vtt.Scene.Api/Vtt.Scene.Api.csproj
+        API_ASSEMBLY: Vtt.Scene.Api.dll
+    ports:
+      - "127.0.0.1:5107:8080"
+
+  session:
+    <<: *api-common
+    image: vtt/session:0.0.0-foundation
+    build:
+      context: ../..
+      dockerfile: deploy/compose/Dockerfile.api
+      args:
+        PROJECT_PATH: src/backend/Services/Session/Vtt.Session.Api/Vtt.Session.Api.csproj
+        API_ASSEMBLY: Vtt.Session.Api.dll
+    ports:
+      - "127.0.0.1:5108:8080"
+
+  gameplay:
+    <<: *api-common
+    image: vtt/gameplay:0.0.0-foundation
+    build:
+      context: ../..
+      dockerfile: deploy/compose/Dockerfile.api
+      args:
+        PROJECT_PATH: src/backend/Services/Gameplay/Vtt.Gameplay.Api/Vtt.Gameplay.Api.csproj
+        API_ASSEMBLY: Vtt.Gameplay.Api.dll
+    ports:
+      - "127.0.0.1:5109:8080"
+
+  chat-dice:
+    <<: *api-common
+    image: vtt/chat-dice:0.0.0-foundation
+    build:
+      context: ../..
+      dockerfile: deploy/compose/Dockerfile.api
+      args:
+        PROJECT_PATH: src/backend/Services/ChatDice/Vtt.ChatDice.Api/Vtt.ChatDice.Api.csproj
+        API_ASSEMBLY: Vtt.ChatDice.Api.dll
+    ports:
+      - "127.0.0.1:5110:8080"
+
+  search:
+    <<: *api-common
+    image: vtt/search:0.0.0-foundation
+    build:
+      context: ../..
+      dockerfile: deploy/compose/Dockerfile.api
+      args:
+        PROJECT_PATH: src/backend/Services/Search/Vtt.Search.Api/Vtt.Search.Api.csproj
+        API_ASSEMBLY: Vtt.Search.Api.dll
+    ports:
+      - "127.0.0.1:5111:8080"
+
+  web:
+    profiles: ["apps"]
+    image: vtt/web:0.0.0-foundation
+    build:
+      context: ../..
+      dockerfile: deploy/compose/Dockerfile.web
+    restart: unless-stopped
+    init: true
+    depends_on:
+      edge:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:${VTT_WEB_PORT:-55173}:8080"
+    networks:
+      - vtt
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp
+    deploy:
+      resources:
+        limits:
+          cpus: "0.50"
+          memory: 128M
+
+  otel-collector:
+    profiles: ["observability"]
+    image: vtt/otel-collector:0.127.0-foundation
+    build:
+      context: ../..
+      dockerfile: deploy/observability/otel-collector.Dockerfile
+    restart: unless-stopped
+    command: ["--config=/etc/otelcol-contrib/config.yaml"]
+    ports:
+      - "127.0.0.1:14317:4317"
+      - "127.0.0.1:14318:4318"
+    networks:
+      - vtt
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD", "/otelcol-contrib", "--version"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          cpus: "0.50"
+          memory: 256M
+
+  prometheus:
+    profiles: ["observability"]
+    image: vtt/prometheus:3.4.1-foundation
+    build:
+      context: ../..
+      dockerfile: deploy/observability/prometheus.Dockerfile
+    restart: unless-stopped
+    command:
+      - --config.file=/etc/prometheus/prometheus.yaml
+      - --storage.tsdb.path=/prometheus
+      - --storage.tsdb.retention.time=7d
+    volumes:
+      - prometheus-data:/prometheus
+    ports:
+      - "127.0.0.1:59090:9090"
+    networks:
+      - vtt
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:9090/-/ready"]
+      interval: 10s
+      timeout: 3s
+      start_period: 10s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          cpus: "0.50"
+          memory: 384M
+
+  grafana:
+    profiles: ["observability"]
+    image: vtt/grafana:12.0.1-foundation
+    build:
+      context: ../..
+      dockerfile: deploy/observability/grafana.Dockerfile
+    restart: unless-stopped
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-vtt_local_admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-local-only-grafana-password}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_AUTH_ANONYMOUS_ENABLED: "false"
+    depends_on:
+      prometheus:
+        condition: service_healthy
+      loki:
+        condition: service_healthy
+      tempo:
+        condition: service_healthy
+    volumes:
+      - grafana-data:/var/lib/grafana
+    ports:
+      - "127.0.0.1:53000:3000"
+    networks:
+      - vtt
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:3000/api/health"]
+      interval: 10s
+      timeout: 3s
+      start_period: 15s
+      retries: 10
+    deploy:
+      resources:
+        limits:
+          cpus: "0.50"
+          memory: 384M
+
+  loki:
+    profiles: ["observability"]
+    image: vtt/loki:3.5.1-foundation
+    build:
+      context: ../..
+      dockerfile: deploy/observability/loki.Dockerfile
+    restart: unless-stopped
+    command: ["-config.file=/etc/loki/config.yaml"]
+    volumes:
+      - loki-data:/loki
+    ports:
+      - "127.0.0.1:53100:3100"
+    networks:
+      - vtt
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD", "/usr/bin/loki", "-version"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          cpus: "0.50"
+          memory: 256M
+
+  tempo:
+    profiles: ["observability"]
+    image: vtt/tempo:2.8.0-foundation
+    build:
+      context: ../..
+      dockerfile: deploy/observability/tempo.Dockerfile
+    restart: unless-stopped
+    command: ["-config.file=/etc/tempo/config.yaml"]
+    volumes:
+      - tempo-data:/var/tempo
+    ports:
+      - "127.0.0.1:53200:3200"
+    networks:
+      - vtt
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD", "/tempo", "-version"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          cpus: "0.50"
+          memory: 256M
+
+  mailpit:
+    profiles: ["dev-tools"]
+    image: axllent/mailpit:v1.27.1
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:51025:1025"
+      - "127.0.0.1:58025:8025"
+    networks:
+      - vtt
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:8025/livez"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: 128M
+
+networks:
+  vtt:
+    name: vtt_local
+    driver: bridge
+
+volumes:
+  postgres-data:
+    name: vtt_postgres_data
+  nats-data:
+    name: vtt_nats_data
+  redis-data:
+    name: vtt_redis_data
+  minio-data:
+    name: vtt_minio_data
+  prometheus-data:
+    name: vtt_prometheus_data
+  grafana-data:
+    name: vtt_grafana_data
+  loki-data:
+    name: vtt_loki_data
+  tempo-data:
+    name: vtt_tempo_data

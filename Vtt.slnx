@@ -1,0 +1,120 @@
+<Solution>
+  <Folder Name="/src/" />
+  <Folder Name="/src/backend/" />
+  <Folder Name="/src/backend/BuildingBlocks/">
+    <Project Path="src/backend/BuildingBlocks/Vtt.ServiceDefaults/Vtt.ServiceDefaults.csproj" />
+  </Folder>
+  <Folder Name="/src/backend/Services/" />
+  <Folder Name="/src/backend/Services/Campaign/">
+    <Project Path="src/backend/Services/Campaign/Vtt.Campaign.Api/Vtt.Campaign.Api.csproj" />
+    <Project Path="src/backend/Services/Campaign/Vtt.Campaign.Application/Vtt.Campaign.Application.csproj" />
+    <Project Path="src/backend/Services/Campaign/Vtt.Campaign.Contracts/Vtt.Campaign.Contracts.csproj" />
+    <Project Path="src/backend/Services/Campaign/Vtt.Campaign.Domain/Vtt.Campaign.Domain.csproj" />
+    <Project Path="src/backend/Services/Campaign/Vtt.Campaign.Infrastructure/Vtt.Campaign.Infrastructure.csproj" />
+    <Project Path="src/backend/Services/Campaign/Vtt.Campaign.IntegrationTests/Vtt.Campaign.IntegrationTests.csproj" />
+    <Project Path="src/backend/Services/Campaign/Vtt.Campaign.UnitTests/Vtt.Campaign.UnitTests.csproj" />
+  </Folder>
+  <Folder Name="/src/backend/Services/Character/">
+    <Project Path="src/backend/Services/Character/Vtt.Character.Api/Vtt.Character.Api.csproj" />
+    <Project Path="src/backend/Services/Character/Vtt.Character.Application/Vtt.Character.Application.csproj" />
+    <Project Path="src/backend/Services/Character/Vtt.Character.Contracts/Vtt.Character.Contracts.csproj" />
+    <Project Path="src/backend/Services/Character/Vtt.Character.Domain/Vtt.Character.Domain.csproj" />
+    <Project Path="src/backend/Services/Character/Vtt.Character.Infrastructure/Vtt.Character.Infrastructure.csproj" />
+    <Project Path="src/backend/Services/Character/Vtt.Character.IntegrationTests/Vtt.Character.IntegrationTests.csproj" />
+    <Project Path="src/backend/Services/Character/Vtt.Character.UnitTests/Vtt.Character.UnitTests.csproj" />
+  </Folder>
+  <Folder Name="/src/backend/Services/ChatDice/">
+    <Project Path="src/backend/Services/ChatDice/Vtt.ChatDice.Api/Vtt.ChatDice.Api.csproj" />
+    <Project Path="src/backend/Services/ChatDice/Vtt.ChatDice.Application/Vtt.ChatDice.Application.csproj" />
+    <Project Path="src/backend/Services/ChatDice/Vtt.ChatDice.Contracts/Vtt.ChatDice.Contracts.csproj" />
+    <Project Path="src/backend/Services/ChatDice/Vtt.ChatDice.Domain/Vtt.ChatDice.Domain.csproj" />
+    <Project Path="src/backend/Services/ChatDice/Vtt.ChatDice.Infrastructure/Vtt.ChatDice.Infrastructure.csproj" />
+    <Project Path="src/backend/Services/ChatDice/Vtt.ChatDice.IntegrationTests/Vtt.ChatDice.IntegrationTests.csproj" />
+    <Project Path="src/backend/Services/ChatDice/Vtt.ChatDice.UnitTests/Vtt.ChatDice.UnitTests.csproj" />
+  </Folder>
+  <Folder Name="/src/backend/Services/Compendium/">
+    <Project Path="src/backend/Services/Compendium/Vtt.Compendium.Api/Vtt.Compendium.Api.csproj" />
+    <Project Path="src/backend/Services/Compendium/Vtt.Compendium.Application/Vtt.Compendium.Application.csproj" />
+    <Project Path="src/backend/Services/Compendium/Vtt.Compendium.Contracts/Vtt.Compendium.Contracts.csproj" />
+    <Project Path="src/backend/Services/Compendium/Vtt.Compendium.Domain/Vtt.Compendium.Domain.csproj" />
+    <Project Path="src/backend/Services/Compendium/Vtt.Compendium.Infrastructure/Vtt.Compendium.Infrastructure.csproj" />
+    <Project Path="src/backend/Services/Compendium/Vtt.Compendium.IntegrationTests/Vtt.Compendium.IntegrationTests.csproj" />
+    <Project Path="src/backend/Services/Compendium/Vtt.Compendium.UnitTests/Vtt.Compendium.UnitTests.csproj" />
+  </Folder>
+  <Folder Name="/src/backend/Services/Edge/">
+    <Project Path="src/backend/Services/Edge/Vtt.Edge.Api/Vtt.Edge.Api.csproj" />
+    <Project Path="src/backend/Services/Edge/Vtt.Edge.Application/Vtt.Edge.Application.csproj" />
+    <Project Path="src/backend/Services/Edge/Vtt.Edge.Contracts/Vtt.Edge.Contracts.csproj" />
+    <Project Path="src/backend/Services/Edge/Vtt.Edge.Domain/Vtt.Edge.Domain.csproj" />
+    <Project Path="src/backend/Services/Edge/Vtt.Edge.Infrastructure/Vtt.Edge.Infrastructure.csproj" />
+    <Project Path="src/backend/Services/Edge/Vtt.Edge.IntegrationTests/Vtt.Edge.IntegrationTests.csproj" />
+    <Project Path="src/backend/Services/Edge/Vtt.Edge.UnitTests/Vtt.Edge.UnitTests.csproj" />
+  </Folder>
+  <Folder Name="/src/backend/Services/Gameplay/">
+    <Project Path="src/backend/Services/Gameplay/Vtt.Gameplay.Api/Vtt.Gameplay.Api.csproj" />
+    <Project Path="src/backend/Services/Gameplay/Vtt.Gameplay.Application/Vtt.Gameplay.Application.csproj" />
+    <Project Path="src/backend/Services/Gameplay/Vtt.Gameplay.Contracts/Vtt.Gameplay.Contracts.csproj" />
+    <Project Path="src/backend/Services/Gameplay/Vtt.Gameplay.Domain/Vtt.Gameplay.Domain.csproj" />
+    <Project Path="src/backend/Services/Gameplay/Vtt.Gameplay.Infrastructure/Vtt.Gameplay.Infrastructure.csproj" />
+    <Project Path="src/backend/Services/Gameplay/Vtt.Gameplay.IntegrationTests/Vtt.Gameplay.IntegrationTests.csproj" />
+    <Project Path="src/backend/Services/Gameplay/Vtt.Gameplay.UnitTests/Vtt.Gameplay.UnitTests.csproj" />
+  </Folder>
+  <Folder Name="/src/backend/Services/Identity/">
+    <Project Path="src/backend/Services/Identity/Vtt.Identity.Api/Vtt.Identity.Api.csproj" />
+    <Project Path="src/backend/Services/Identity/Vtt.Identity.Application/Vtt.Identity.Application.csproj" />
+    <Project Path="src/backend/Services/Identity/Vtt.Identity.Contracts/Vtt.Identity.Contracts.csproj" />
+    <Project Path="src/backend/Services/Identity/Vtt.Identity.Domain/Vtt.Identity.Domain.csproj" />
+    <Project Path="src/backend/Services/Identity/Vtt.Identity.Infrastructure/Vtt.Identity.Infrastructure.csproj" />
+    <Project Path="src/backend/Services/Identity/Vtt.Identity.IntegrationTests/Vtt.Identity.IntegrationTests.csproj" />
+    <Project Path="src/backend/Services/Identity/Vtt.Identity.UnitTests/Vtt.Identity.UnitTests.csproj" />
+  </Folder>
+  <Folder Name="/src/backend/Services/Media/">
+    <Project Path="src/backend/Services/Media/Vtt.Media.Api/Vtt.Media.Api.csproj" />
+    <Project Path="src/backend/Services/Media/Vtt.Media.Application/Vtt.Media.Application.csproj" />
+    <Project Path="src/backend/Services/Media/Vtt.Media.Contracts/Vtt.Media.Contracts.csproj" />
+    <Project Path="src/backend/Services/Media/Vtt.Media.Domain/Vtt.Media.Domain.csproj" />
+    <Project Path="src/backend/Services/Media/Vtt.Media.Infrastructure/Vtt.Media.Infrastructure.csproj" />
+    <Project Path="src/backend/Services/Media/Vtt.Media.IntegrationTests/Vtt.Media.IntegrationTests.csproj" />
+    <Project Path="src/backend/Services/Media/Vtt.Media.UnitTests/Vtt.Media.UnitTests.csproj" />
+  </Folder>
+  <Folder Name="/src/backend/Services/Ruleset/">
+    <Project Path="src/backend/Services/Ruleset/Vtt.Ruleset.Api/Vtt.Ruleset.Api.csproj" />
+    <Project Path="src/backend/Services/Ruleset/Vtt.Ruleset.Application/Vtt.Ruleset.Application.csproj" />
+    <Project Path="src/backend/Services/Ruleset/Vtt.Ruleset.Contracts/Vtt.Ruleset.Contracts.csproj" />
+    <Project Path="src/backend/Services/Ruleset/Vtt.Ruleset.Domain/Vtt.Ruleset.Domain.csproj" />
+    <Project Path="src/backend/Services/Ruleset/Vtt.Ruleset.Infrastructure/Vtt.Ruleset.Infrastructure.csproj" />
+    <Project Path="src/backend/Services/Ruleset/Vtt.Ruleset.IntegrationTests/Vtt.Ruleset.IntegrationTests.csproj" />
+    <Project Path="src/backend/Services/Ruleset/Vtt.Ruleset.UnitTests/Vtt.Ruleset.UnitTests.csproj" />
+  </Folder>
+  <Folder Name="/src/backend/Services/Scene/">
+    <Project Path="src/backend/Services/Scene/Vtt.Scene.Api/Vtt.Scene.Api.csproj" />
+    <Project Path="src/backend/Services/Scene/Vtt.Scene.Application/Vtt.Scene.Application.csproj" />
+    <Project Path="src/backend/Services/Scene/Vtt.Scene.Contracts/Vtt.Scene.Contracts.csproj" />
+    <Project Path="src/backend/Services/Scene/Vtt.Scene.Domain/Vtt.Scene.Domain.csproj" />
+    <Project Path="src/backend/Services/Scene/Vtt.Scene.Infrastructure/Vtt.Scene.Infrastructure.csproj" />
+    <Project Path="src/backend/Services/Scene/Vtt.Scene.IntegrationTests/Vtt.Scene.IntegrationTests.csproj" />
+    <Project Path="src/backend/Services/Scene/Vtt.Scene.UnitTests/Vtt.Scene.UnitTests.csproj" />
+  </Folder>
+  <Folder Name="/src/backend/Services/Search/">
+    <Project Path="src/backend/Services/Search/Vtt.Search.Api/Vtt.Search.Api.csproj" />
+    <Project Path="src/backend/Services/Search/Vtt.Search.Application/Vtt.Search.Application.csproj" />
+    <Project Path="src/backend/Services/Search/Vtt.Search.Contracts/Vtt.Search.Contracts.csproj" />
+    <Project Path="src/backend/Services/Search/Vtt.Search.Domain/Vtt.Search.Domain.csproj" />
+    <Project Path="src/backend/Services/Search/Vtt.Search.Infrastructure/Vtt.Search.Infrastructure.csproj" />
+    <Project Path="src/backend/Services/Search/Vtt.Search.IntegrationTests/Vtt.Search.IntegrationTests.csproj" />
+    <Project Path="src/backend/Services/Search/Vtt.Search.UnitTests/Vtt.Search.UnitTests.csproj" />
+  </Folder>
+  <Folder Name="/src/backend/Services/Session/">
+    <Project Path="src/backend/Services/Session/Vtt.Session.Api/Vtt.Session.Api.csproj" />
+    <Project Path="src/backend/Services/Session/Vtt.Session.Application/Vtt.Session.Application.csproj" />
+    <Project Path="src/backend/Services/Session/Vtt.Session.Contracts/Vtt.Session.Contracts.csproj" />
+    <Project Path="src/backend/Services/Session/Vtt.Session.Domain/Vtt.Session.Domain.csproj" />
+    <Project Path="src/backend/Services/Session/Vtt.Session.Infrastructure/Vtt.Session.Infrastructure.csproj" />
+    <Project Path="src/backend/Services/Session/Vtt.Session.IntegrationTests/Vtt.Session.IntegrationTests.csproj" />
+    <Project Path="src/backend/Services/Session/Vtt.Session.UnitTests/Vtt.Session.UnitTests.csproj" />
+  </Folder>
+  <Folder Name="/tests/" />
+  <Folder Name="/tests/architecture/">
+    <Project Path="tests/architecture/Vtt.ArchitectureTests/Vtt.ArchitectureTests.csproj" />
+  </Folder>
+</Solution>

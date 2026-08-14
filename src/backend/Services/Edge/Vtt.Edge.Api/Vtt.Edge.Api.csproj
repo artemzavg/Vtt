@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <RootNamespace>Vtt.Edge.Api</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\BuildingBlocks\Vtt.ServiceDefaults\Vtt.ServiceDefaults.csproj" />
+    <ProjectReference Include="..\Vtt.Edge.Application\Vtt.Edge.Application.csproj" />
+    <ProjectReference Include="..\Vtt.Edge.Contracts\Vtt.Edge.Contracts.csproj" />
+    <ProjectReference Include="..\Vtt.Edge.Infrastructure\Vtt.Edge.Infrastructure.csproj" />
+  </ItemGroup>
+</Project>
