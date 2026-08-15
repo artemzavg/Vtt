@@ -82,8 +82,7 @@ public sealed class ProjectDependencyRulesTests
                 .Descendants("ProjectReference")
                 .Select(reference => reference.Attribute("Include")?.Value)
                 .Where(include => !string.IsNullOrWhiteSpace(include))
-                .Select(include => Path.GetFullPath(
-                    Path.Combine(Path.GetDirectoryName(project)!, include!)));
+                .Select(include => ResolveProjectReference(project, include!));
 
             foreach (var reference in references)
             {
@@ -182,6 +181,7 @@ public sealed class ProjectDependencyRulesTests
             var targets = document.Descendants("ProjectReference")
                 .Select(reference => reference.Attribute("Include")?.Value)
                 .Where(include => !string.IsNullOrWhiteSpace(include))
+                .Select(include => ResolveProjectReference(project, include!))
                 .Select(Path.GetFileNameWithoutExtension)
                 .ToArray();
 
@@ -249,6 +249,36 @@ public sealed class ProjectDependencyRulesTests
             .Select(file => Path.GetRelativePath(repositoryRoot, file));
 
         Assert.Empty(violations);
+    }
+
+    [Theory]
+    [InlineData(@"..\Target\Vtt.Target.Domain.csproj")]
+    [InlineData("../Target/Vtt.Target.Domain.csproj")]
+    public void ProjectReferenceResolutionAcceptsBothSeparatorStyles(string include)
+    {
+        var sourceProject = Path.Combine(
+            Path.GetTempPath(),
+            "Source",
+            "Vtt.Source.Api.csproj");
+        var expected = Path.GetFullPath(Path.Combine(
+            Path.GetTempPath(),
+            "Target",
+            "Vtt.Target.Domain.csproj"));
+
+        var actual = ResolveProjectReference(sourceProject, include);
+
+        Assert.Equal(expected, actual);
+    }
+
+    private static string ResolveProjectReference(string project, string include)
+    {
+        var normalizedInclude = include
+            .Replace('\\', Path.DirectorySeparatorChar)
+            .Replace('/', Path.DirectorySeparatorChar);
+
+        return Path.GetFullPath(Path.Combine(
+            Path.GetDirectoryName(project)!,
+            normalizedInclude));
     }
 
     private static string FindRepositoryRoot()
