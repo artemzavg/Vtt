@@ -75,7 +75,7 @@ function Assert-Tooling {
 
     $dotnetVersion = (& dotnet --version).Trim()
     if (-not $dotnetVersion.StartsWith("10.0.", [StringComparison]::Ordinal)) {
-        throw "Expected .NET SDK 10.0.x, found $dotnetVersion. global.json requires 10.0.302."
+        throw "Expected .NET SDK 10.0.x, found $dotnetVersion. global.json requires 10.0.400."
     }
 
     Invoke-External "node" @(

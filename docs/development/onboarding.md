@@ -2,7 +2,7 @@
 
 ## Требования
 
-- .NET SDK 10.0.302 или совместимый 10.0 patch согласно `global.json`;
+- .NET SDK 10.0.400 или совместимый 10.0 patch согласно `global.json`;
 - Node.js от 22.12 до 24.x;
 - pnpm 11.19+ в пределах major 11;
 - Docker Engine 24+ и Docker Compose 2.24+;

@@ -1,7 +1,7 @@
 # Протокол тестирования: шаг 02
 
 Дата: 2026-08-15  
-Среда: Windows, .NET SDK 10.0.302, Node.js 24.19.0, pnpm 11.19.0,
+Среда: Windows, .NET SDK 10.0.400, Node.js 24.19.0, pnpm 11.19.0,
 Docker Desktop 29.0.1, PostgreSQL 17.6, NATS 2.11.3.
 
 ## Автоматизированные проверки
@@ -16,6 +16,7 @@ Docker Desktop 29.0.1, PostgreSQL 17.6, NATS 2.11.3.
 | Generated TypeScript | Passed | Генерация воспроизводима; lint/typecheck/build зелёные, handwritten DTO не добавлены |
 | Frontend regression | Passed | ESLint без warnings, 4/4 Vitest, strict typecheck всех packages, production build 201651/350000 bytes |
 | NuGet/security | Passed | Restore/audit без vulnerability warnings; high-confidence secret scan не нашёл утечек |
+| Container CVE regression | Passed | Trivy 0.70.0: `CVE-2026-62901` больше не обнаруживается; у Alpine, приложения, ASP.NET Core 10.0.11 и .NET Runtime 10.0.11 по 0 HIGH/CRITICAL findings |
 | Production-like startup | Passed | PostgreSQL/NATS → init jobs → one-shot Marten migration → API с `AutoCreate.None`; fixture healthy |
 | Clean migration | Passed | Уникальная disposable database: apply + идемпотентный повтор; создано 14 таблиц schema `engineering`, database затем удалена |
 | Previous-schema migration | Passed | One-shot migrator обновил сохранённую раннюю schema до event store + platform documents без очистки volume |
@@ -24,6 +25,12 @@ Docker Desktop 29.0.1, PostgreSQL 17.6, NATS 2.11.3.
 | Metrics | Passed | Prometheus получил command result/duration, outbox result/age, inbox result и projection lag series |
 | Logs/redaction | Passed | Loki получил structured logs; regression запрещает SQL, parameters, event body и common secret/PII fields |
 | CI supply chain | Configured | Coverage artifacts, clean migration, CycloneDX SBOM и Trivy HIGH/CRITICAL image gate добавлены; remote CI run ожидает push |
+
+Security regression выполнен после перехода build toolchain на .NET SDK 10.0.400,
+финального ASP.NET Core image на 10.0.11 и Microsoft ASP.NET Core NuGet-пакетов
+на 10.0.11. Повторная сборка representative image, NuGet vulnerability audit,
+`dotnet format --verify-no-changes`, 53/53 backend tests и Trivy image scan
+завершились успешно.
 
 Benchmark выполнен на локальном последовательном клиенте и является baseline, а
 не доказательством production SLO или предела пропускной способности.
