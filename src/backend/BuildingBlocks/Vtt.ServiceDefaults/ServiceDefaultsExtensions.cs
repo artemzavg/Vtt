@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Net.Sockets;
 using System.Text.Json;
 using Microsoft.AspNetCore.Builder;
@@ -61,10 +62,26 @@ public static class ServiceDefaultsExtensions
                 .ConfigureResource(resourceBuilder => resourceBuilder.AddService(serviceName))
                 .WithTracing(tracing => tracing
                     .AddAspNetCoreInstrumentation()
+                    .AddHttpClientInstrumentation()
+                    .AddSource(
+                        "Vtt.Cqrs",
+                        "Vtt.Outbox",
+                        "Vtt.Inbox",
+                        "Vtt.Projections",
+                        "Npgsql",
+                        "NATS.Client")
                     .AddOtlpExporter(exporter => exporter.Endpoint = endpoint))
                 .WithMetrics(metrics => metrics
                     .AddAspNetCoreInstrumentation()
                     .AddRuntimeInstrumentation()
+                    .AddMeter(
+                        "Vtt.Cqrs",
+                        "Vtt.EventStore",
+                        "Vtt.Persistence",
+                        "Vtt.Outbox",
+                        "Vtt.Inbox",
+                        "Vtt.Projections",
+                        "Npgsql")
                     .AddOtlpExporter(exporter => exporter.Endpoint = endpoint));
         }
 
@@ -73,8 +90,11 @@ public static class ServiceDefaultsExtensions
 
     public static WebApplication MapVttServiceDefaults(
         this WebApplication app,
-        string serviceName)
+        string serviceName,
+        bool mapFoundationOpenApi = true,
+        bool mapRoot = true)
     {
+        app.UseVttCorrelation();
         app.UseExceptionHandler();
 
         app.MapHealthChecks(
@@ -93,36 +113,45 @@ public static class ServiceDefaultsExtensions
                 ResponseWriter = WriteHealthResponseAsync,
             });
 
-        app.MapGet(
-            "/openapi/v1.json",
-            () => Results.Json(
-                new
-                {
-                    openapi = "3.1.0",
-                    info = new
+        if (mapFoundationOpenApi)
+        {
+            app.MapGet(
+                "/openapi/v1.json",
+                () => Results.Json(
+                    new
                     {
-                        title = $"VTT {serviceName} API",
-                        version = "0.0.0-foundation",
-                    },
-                    paths = new Dictionary<string, object>
-                    {
-                        ["/health/live"] = new { },
-                        ["/health/ready"] = new { },
-                    },
-                }));
+                        openapi = "3.1.1",
+                        info = new
+                        {
+                            title = $"VTT {serviceName} API",
+                            version = "0.0.0-foundation",
+                        },
+                        paths = new Dictionary<string, object>
+                        {
+                            ["/health/live"] = new { },
+                            ["/health/ready"] = new { },
+                        },
+                    }));
+        }
 
-        app.MapGet(
-            "/",
-            () => Results.Ok(
-                new
-                {
-                    service = serviceName,
-                    status = "foundation-only",
-                    businessApi = "not-implemented",
-                }));
+        if (mapRoot)
+        {
+            app.MapGet(
+                "/",
+                () => Results.Ok(
+                    new
+                    {
+                        service = serviceName,
+                        status = "foundation-only",
+                        businessApi = "not-implemented",
+                    }));
+        }
 
         return app;
     }
+
+    public static IApplicationBuilder UseVttCorrelation(this IApplicationBuilder app) =>
+        app.UseMiddleware<CorrelationIdMiddleware>();
 
     private static Task WriteHealthResponseAsync(HttpContext context, HealthReport report)
     {
@@ -143,6 +172,30 @@ public static class ServiceDefaultsExtensions
             },
             cancellationToken: context.RequestAborted);
     }
+}
+
+internal sealed class CorrelationIdMiddleware(RequestDelegate next)
+{
+    private const string HeaderName = "X-Correlation-ID";
+
+    public async Task InvokeAsync(HttpContext context, ILogger<CorrelationIdMiddleware> logger)
+    {
+        var supplied = context.Request.Headers[HeaderName].ToString();
+        var correlationId = IsValid(supplied)
+            ? supplied
+            : Activity.Current?.TraceId.ToString() ?? Guid.CreateVersion7().ToString("D");
+
+        context.TraceIdentifier = correlationId;
+        context.Response.Headers[HeaderName] = correlationId;
+        using (logger.BeginScope(new Dictionary<string, object> { ["correlation_id"] = correlationId }))
+        {
+            await next(context);
+        }
+    }
+
+    private static bool IsValid(string value) =>
+        value.Length is > 0 and <= 128 &&
+        value.All(character => char.IsAsciiLetterOrDigit(character) || character is '-' or '_' or '.' or ':');
 }
 
 internal sealed class ConfiguredTcpDependenciesHealthCheck(

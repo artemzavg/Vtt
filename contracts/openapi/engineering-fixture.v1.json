@@ -1,0 +1,281 @@
+{
+  "openapi": "3.1.1",
+  "info": {
+    "title": "VTT engineering fixture API",
+    "version": "1.0.0",
+    "description": "Executable contract for Step 02 platform guarantees; not a product API."
+  },
+  "paths": {
+    "/platform/probes/{probeId}/increments": {
+      "post": {
+        "operationId": "incrementEngineeringProbe",
+        "parameters": [
+          { "$ref": "#/components/parameters/ProbeId" },
+          { "$ref": "#/components/parameters/IfMatch" },
+          { "$ref": "#/components/parameters/IdempotencyKey" },
+          { "$ref": "#/components/parameters/CorrelationId" }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/IncrementProbeRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Event and outbox message committed atomically.",
+            "headers": {
+              "ETag": { "schema": { "type": "string" } },
+              "X-Correlation-ID": { "schema": { "type": "string" } },
+              "X-Projection-Pending": { "schema": { "type": "boolean" } }
+            },
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IncrementProbeResponse" }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/Problem" },
+          "409": { "$ref": "#/components/responses/Problem" },
+          "413": { "$ref": "#/components/responses/Problem" },
+          "422": { "$ref": "#/components/responses/Problem" }
+        }
+      }
+    },
+    "/platform/probes/{probeId}/projection": {
+      "get": {
+        "operationId": "getEngineeringProbeProjection",
+        "parameters": [{ "$ref": "#/components/parameters/ProbeId" }],
+        "responses": {
+          "200": {
+            "description": "Current service-local projection.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ProbeProjectionResponse" }
+              }
+            }
+          },
+          "404": { "$ref": "#/components/responses/Problem" }
+        }
+      }
+    },
+    "/platform/projections/probes/rebuild": {
+      "post": {
+        "operationId": "rebuildEngineeringProbeProjection",
+        "responses": {
+          "202": {
+            "description": "Rebuild operation accepted.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/OperationResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/platform/operations/{operationId}": {
+      "get": {
+        "operationId": "getEngineeringOperation",
+        "parameters": [{ "$ref": "#/components/parameters/OperationId" }],
+        "responses": {
+          "200": {
+            "description": "Operation state.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/OperationResponse" }
+              }
+            }
+          },
+          "404": { "$ref": "#/components/responses/Problem" }
+        }
+      },
+      "delete": {
+        "operationId": "cancelEngineeringOperation",
+        "parameters": [{ "$ref": "#/components/parameters/OperationId" }],
+        "responses": {
+          "202": { "description": "Cancellation requested." },
+          "404": { "$ref": "#/components/responses/Problem" }
+        }
+      }
+    },
+    "/platform/quarantine": {
+      "get": {
+        "operationId": "listEngineeringQuarantine",
+        "responses": {
+          "200": {
+            "description": "Bounded list of quarantined deliveries without payload bodies.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/QuarantineResponse" }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/platform/quarantine/{quarantineId}/retry": {
+      "post": {
+        "operationId": "retryEngineeringQuarantine",
+        "parameters": [{ "$ref": "#/components/parameters/QuarantineId" }],
+        "responses": {
+          "202": { "description": "Operator retry accepted." },
+          "404": { "$ref": "#/components/responses/Problem" }
+        }
+      }
+    },
+    "/platform/outbox/{messageId}/retry": {
+      "post": {
+        "operationId": "retryEngineeringOutbox",
+        "parameters": [{ "$ref": "#/components/parameters/MessageId" }],
+        "responses": {
+          "202": { "description": "Dead-letter outbox message returned to pending." },
+          "404": { "$ref": "#/components/responses/Problem" }
+        }
+      }
+    }
+  },
+  "components": {
+    "parameters": {
+      "ProbeId": {
+        "name": "probeId",
+        "in": "path",
+        "required": true,
+        "schema": { "type": "string", "format": "uuid" }
+      },
+      "OperationId": {
+        "name": "operationId",
+        "in": "path",
+        "required": true,
+        "schema": { "type": "string", "format": "uuid" }
+      },
+      "QuarantineId": {
+        "name": "quarantineId",
+        "in": "path",
+        "required": true,
+        "schema": { "type": "string", "format": "uuid" }
+      },
+      "MessageId": {
+        "name": "messageId",
+        "in": "path",
+        "required": true,
+        "schema": { "type": "string", "format": "uuid" }
+      },
+      "IfMatch": {
+        "name": "If-Match",
+        "in": "header",
+        "required": true,
+        "description": "Strong ETag containing the expected aggregate version, for example \"0\".",
+        "schema": { "type": "string", "pattern": "^\\\"[0-9]+\\\"$" }
+      },
+      "IdempotencyKey": {
+        "name": "Idempotency-Key",
+        "in": "header",
+        "required": true,
+        "schema": { "type": "string", "minLength": 1, "maxLength": 128 }
+      },
+      "CorrelationId": {
+        "name": "X-Correlation-ID",
+        "in": "header",
+        "required": false,
+        "schema": { "type": "string", "maxLength": 128 }
+      }
+    },
+    "responses": {
+      "Problem": {
+        "description": "Stable RFC 9457 problem response.",
+        "content": {
+          "application/problem+json": {
+            "schema": { "$ref": "#/components/schemas/ProblemDetails" }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "IncrementProbeRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["amount"],
+        "properties": {
+          "amount": { "type": "integer", "minimum": 1, "maximum": 1000 }
+        }
+      },
+      "IncrementProbeResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["probeId", "value", "aggregateVersion", "eventId", "projectionPending", "idempotencyReplayed", "correlationId"],
+        "properties": {
+          "probeId": { "type": "string", "format": "uuid" },
+          "value": { "type": "integer" },
+          "aggregateVersion": { "type": "integer", "format": "int64" },
+          "eventId": { "type": "string", "format": "uuid" },
+          "projectionPending": { "type": "boolean" },
+          "idempotencyReplayed": { "type": "boolean" },
+          "correlationId": { "type": "string" }
+        }
+      },
+      "ProbeProjectionResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["probeId", "value", "projectionVersion", "sourceAggregateVersion", "asOf", "checksum"],
+        "properties": {
+          "probeId": { "type": "string", "format": "uuid" },
+          "value": { "type": "integer" },
+          "projectionVersion": { "type": "integer", "format": "int64" },
+          "sourceAggregateVersion": { "type": "integer", "format": "int64" },
+          "asOf": { "type": "string", "format": "date-time" },
+          "checksum": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+        }
+      },
+      "OperationResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["operationId", "type", "status", "createdAt", "cancellationRequested"],
+        "properties": {
+          "operationId": { "type": "string", "format": "uuid" },
+          "type": { "type": "string" },
+          "status": { "type": "string", "enum": ["pending", "running", "completed", "cancelled", "failed"] },
+          "createdAt": { "type": "string", "format": "date-time" },
+          "completedAt": { "type": ["string", "null"], "format": "date-time" },
+          "resultChecksum": { "type": ["string", "null"] },
+          "errorCode": { "type": ["string", "null"] },
+          "cancellationRequested": { "type": "boolean" }
+        }
+      },
+      "QuarantineResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["quarantineId", "eventId", "consumer", "subject", "reasonCode", "retryCount", "quarantinedAt", "retriedAt"],
+        "properties": {
+          "quarantineId": { "type": "string", "format": "uuid" },
+          "eventId": { "type": ["string", "null"], "format": "uuid" },
+          "consumer": { "type": "string" },
+          "subject": { "type": "string" },
+          "reasonCode": { "type": "string" },
+          "retryCount": { "type": "integer" },
+          "quarantinedAt": { "type": "string", "format": "date-time" },
+          "retriedAt": { "type": ["string", "null"], "format": "date-time" }
+        }
+      },
+      "ProblemDetails": {
+        "type": "object",
+        "required": ["type", "title", "status", "code", "correlationId"],
+        "properties": {
+          "type": { "type": "string" },
+          "title": { "type": "string" },
+          "status": { "type": "integer" },
+          "detail": { "type": "string" },
+          "instance": { "type": "string" },
+          "code": { "type": "string" },
+          "correlationId": { "type": "string" },
+          "traceId": { "type": ["string", "null"] }
+        }
+      }
+    }
+  }
+}

@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/sdk:10.0.302-alpine3.23 AS build
+FROM mcr.microsoft.com/dotnet/sdk:10.0.400-alpine3.23 AS build
 WORKDIR /source
 
 COPY global.json Directory.Build.props Directory.Build.targets Directory.Packages.props NuGet.config ./
@@ -11,7 +11,7 @@ RUN dotnet publish "$PROJECT_PATH" \
     --output /app/publish \
     /p:UseAppHost=false
 
-FROM mcr.microsoft.com/dotnet/aspnet:10.0.10-alpine3.23 AS runtime
+FROM mcr.microsoft.com/dotnet/aspnet:10.0.11-alpine3.23 AS runtime
 WORKDIR /app
 
 ARG API_ASSEMBLY

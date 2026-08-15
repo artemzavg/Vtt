@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <RootNamespace>Vtt.EngineeringFixture.Api</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\BuildingBlocks\Vtt.ServiceDefaults\Vtt.ServiceDefaults.csproj" />
+    <ProjectReference Include="..\Vtt.EngineeringFixture.Application\Vtt.EngineeringFixture.Application.csproj" />
+    <ProjectReference Include="..\Vtt.EngineeringFixture.Contracts\Vtt.EngineeringFixture.Contracts.csproj" />
+    <ProjectReference Include="..\Vtt.EngineeringFixture.Infrastructure\Vtt.EngineeringFixture.Infrastructure.csproj" />
+  </ItemGroup>
+</Project>

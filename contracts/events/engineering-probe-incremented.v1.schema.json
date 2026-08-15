@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://contracts.vtt.local/events/engineering-probe-incremented.v1.schema.json",
+  "title": "EngineeringProbeIncremented.v1 data",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["probeId", "amount", "resultingValue", "aggregateVersion", "occurredAt"],
+  "properties": {
+    "probeId": { "type": "string", "format": "uuid" },
+    "amount": { "type": "integer", "minimum": 1, "maximum": 1000 },
+    "resultingValue": { "type": "integer", "minimum": 1, "maximum": 1000000 },
+    "aggregateVersion": { "type": "integer", "minimum": 1 },
+    "occurredAt": { "type": "string", "format": "date-time" }
+  }
+}

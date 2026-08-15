@@ -1,0 +1,54 @@
+{
+  "asyncapi": "3.0.0",
+  "info": {
+    "title": "VTT engineering fixture events",
+    "version": "1.0.0",
+    "description": "Technical fixture only; it carries no product domain semantics."
+  },
+  "defaultContentType": "application/json",
+  "servers": {
+    "local": {
+      "host": "127.0.0.1:54222",
+      "protocol": "nats"
+    }
+  },
+  "channels": {
+    "probeIncremented": {
+      "address": "vtt.engineering-fixture.engineering-probe.incremented.v1",
+      "messages": {
+        "EngineeringProbeIncrementedV1": {
+          "$ref": "#/components/messages/EngineeringProbeIncrementedV1"
+        }
+      }
+    }
+  },
+  "operations": {
+    "publishProbeIncremented": {
+      "action": "send",
+      "channel": { "$ref": "#/channels/probeIncremented" },
+      "messages": [
+        { "$ref": "#/channels/probeIncremented/messages/EngineeringProbeIncrementedV1" }
+      ]
+    }
+  },
+  "components": {
+    "messages": {
+      "EngineeringProbeIncrementedV1": {
+        "name": "EngineeringProbeIncremented.v1",
+        "contentType": "application/json",
+        "payload": {
+          "allOf": [
+            { "$ref": "../events/event-envelope.v1.schema.json" },
+            {
+              "type": "object",
+              "properties": {
+                "eventType": { "const": "EngineeringProbeIncremented.v1" },
+                "data": { "$ref": "../events/engineering-probe-incremented.v1.schema.json" }
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

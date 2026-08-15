@@ -72,6 +72,33 @@ services:
           cpus: "1.00"
           memory: 768M
 
+  postgres-init:
+    image: vtt/postgres:17.6-foundation
+    restart: "no"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      PGHOST: postgres
+      PGPORT: 5432
+      PGPASSWORD: ${POSTGRES_SUPERUSER_PASSWORD:-local-only-postgres}
+      POSTGRES_USER: ${POSTGRES_SUPERUSER:-vtt_admin}
+      POSTGRES_PASSWORD: ${POSTGRES_SUPERUSER_PASSWORD:-local-only-postgres}
+      POSTGRES_DB: postgres
+      VTT_LOCAL_DB_PASSWORD: ${VTT_LOCAL_DB_PASSWORD:-local-only-service-db}
+    volumes:
+      - ./postgres/init/001-create-service-databases.sh:/opt/vtt/001-create-service-databases.sh:ro
+    entrypoint: ["/bin/bash", "/opt/vtt/001-create-service-databases.sh"]
+    networks:
+      - vtt
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: 64M
+
   nats:
     image: nats:2.11.3-alpine
     restart: unless-stopped
@@ -371,6 +398,77 @@ services:
         API_ASSEMBLY: Vtt.Search.Api.dll
     ports:
       - "127.0.0.1:5111:8080"
+
+  engineering-migrate:
+    profiles: ["platform-tests"]
+    image: vtt/engineering-fixture:0.0.0-step02
+    build:
+      context: ../..
+      dockerfile: deploy/compose/Dockerfile.api
+      args:
+        PROJECT_PATH: src/backend/PlatformFixtures/Engineering/Vtt.EngineeringFixture.Api/Vtt.EngineeringFixture.Api.csproj
+        API_ASSEMBLY: Vtt.EngineeringFixture.Api.dll
+    restart: "no"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      VTT_ENGINEERING_CONNECTION_STRING: Host=postgres;Port=5432;Database=vtt_engineering;Username=vtt_engineering;Password=${VTT_LOCAL_DB_PASSWORD:-local-only-service-db}
+      VTT_APPLY_SCHEMA: "false"
+      NATS_URL: nats://nats:4222
+      OTEL_EXPORTER_OTLP_ENDPOINT: ""
+    entrypoint: ["dotnet", "Vtt.EngineeringFixture.Api.dll"]
+    command: ["--migrate-only"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+      postgres-init:
+        condition: service_completed_successfully
+    networks:
+      - vtt
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp
+    deploy:
+      resources:
+        limits:
+          cpus: "0.50"
+          memory: 256M
+
+  engineering-fixture:
+    <<: *api-common
+    profiles: ["platform-tests"]
+    image: vtt/engineering-fixture:0.0.0-step02
+    build:
+      context: ../..
+      dockerfile: deploy/compose/Dockerfile.api
+      args:
+        PROJECT_PATH: src/backend/PlatformFixtures/Engineering/Vtt.EngineeringFixture.Api/Vtt.EngineeringFixture.Api.csproj
+        API_ASSEMBLY: Vtt.EngineeringFixture.Api.dll
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      VTT_READINESS_TCP_ENDPOINTS: postgres:5432;nats:4222
+      VTT_ENGINEERING_CONNECTION_STRING: Host=postgres;Port=5432;Database=vtt_engineering;Username=vtt_engineering;Password=${VTT_LOCAL_DB_PASSWORD:-local-only-service-db}
+      VTT_APPLY_SCHEMA: "false"
+      NATS_URL: nats://nats:4222
+      OTEL_EXPORTER_OTLP_ENDPOINT: ${VTT_OTEL_EXPORTER_OTLP_ENDPOINT:-http://otel-collector:4317}
+      OTEL_EXPORTER_OTLP_PROTOCOL: grpc
+    depends_on:
+      postgres:
+        condition: service_healthy
+      postgres-init:
+        condition: service_completed_successfully
+      engineering-migrate:
+        condition: service_completed_successfully
+      nats:
+        condition: service_healthy
+      nats-init:
+        condition: service_completed_successfully
+      otel-collector:
+        condition: service_started
+        required: false
+    ports:
+      - "127.0.0.1:${VTT_ENGINEERING_PORT:-55120}:8080"
 
   web:
     profiles: ["apps"]

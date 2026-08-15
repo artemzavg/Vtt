@@ -93,8 +93,19 @@ case "$command_name" in
     ;;
   core-up)
     compose up --detach --wait postgres nats redis minio
+    compose run --rm postgres-init
     compose run --rm nats-init
     compose run --rm minio-init
+    ;;
+  platform-up)
+    compose up --detach --wait postgres nats
+    compose run --rm postgres-init
+    compose run --rm nats-init
+    compose --profile platform-tests up --detach --build --wait engineering-fixture
+    ;;
+  platform-test)
+    dotnet test "$repository_root/src/backend/PlatformFixtures/Engineering/Vtt.EngineeringFixture.IntegrationTests/Vtt.EngineeringFixture.IntegrationTests.csproj"
+    pnpm contracts:check
     ;;
   app-smoke)
     compose --profile apps up --detach --build --wait edge web

@@ -25,13 +25,18 @@ Virtual Tabletop-платформы. Первая поставка поддер�
 - [Нефункциональные требования, безопасность и real-time](architecture/non-functional.md)
 - [Нагрузочная модель, SLI/SLO/SLA и стоимость](architecture/capacity-slo-cost.md)
 - [Стратегия тестирования](architecture/testing.md)
+- [Публичные HTTP и event contracts](architecture/contracts.md)
 - [ADR-0001: monorepo и границы сервисов](architecture/adr/0001-monorepo-and-service-boundaries.md)
+- [ADR-0002: CQRS, Event Sourcing и надёжная доставка](architecture/adr/0002-cqrs-event-sourcing-and-reliable-messaging.md)
 
 ### Разработка и evidence
 
 - [Onboarding и команды local development](development/onboarding.md)
 - [Локальные порты и Compose profiles](development/ports.md)
+- [Workflow миграций PostgreSQL/Marten](development/migrations.md)
+- [Runbook event platform](operations/event-platform.md)
 - [Test report шага 01](testing/step-01-test-report.md)
+- [Test report шага 02](testing/step-02-test-report.md)
 
 ### Микросервисы
 

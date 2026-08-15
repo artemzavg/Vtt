@@ -14,6 +14,8 @@ param(
         "apps-up",
         "observability-up",
         "dev-tools-up",
+        "platform-up",
+        "platform-test",
         "down",
         "reset",
         "images"
@@ -73,7 +75,7 @@ function Assert-Tooling {
 
     $dotnetVersion = (& dotnet --version).Trim()
     if (-not $dotnetVersion.StartsWith("10.0.", [StringComparison]::Ordinal)) {
-        throw "Expected .NET SDK 10.0.x, found $dotnetVersion. global.json requires 10.0.302."
+        throw "Expected .NET SDK 10.0.x, found $dotnetVersion. global.json requires 10.0.400."
     }
 
     Invoke-External "node" @(
@@ -181,8 +183,36 @@ try {
                 "redis",
                 "minio"
             )
+            Invoke-Compose @("run", "--rm", "postgres-init")
             Invoke-Compose @("run", "--rm", "nats-init")
             Invoke-Compose @("run", "--rm", "minio-init")
+        }
+        "platform-up" {
+            Invoke-Compose @(
+                "up",
+                "--detach",
+                "--wait",
+                "postgres",
+                "nats"
+            )
+            Invoke-Compose @("run", "--rm", "postgres-init")
+            Invoke-Compose @("run", "--rm", "nats-init")
+            Invoke-Compose @(
+                "--profile",
+                "platform-tests",
+                "up",
+                "--detach",
+                "--build",
+                "--wait",
+                "engineering-fixture"
+            )
+        }
+        "platform-test" {
+            Invoke-External "dotnet" @(
+                "test",
+                (Join-Path $repositoryRoot "src\backend\PlatformFixtures\Engineering\Vtt.EngineeringFixture.IntegrationTests\Vtt.EngineeringFixture.IntegrationTests.csproj")
+            )
+            Invoke-External "pnpm" @("contracts:check")
         }
         "app-smoke" {
             Invoke-Compose @(

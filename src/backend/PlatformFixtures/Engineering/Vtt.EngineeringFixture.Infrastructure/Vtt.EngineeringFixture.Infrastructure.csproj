@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>Vtt.EngineeringFixture.Infrastructure</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Marten" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\BuildingBlocks\Vtt.Cqrs\Vtt.Cqrs.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\Vtt.Messaging\Vtt.Messaging.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\Vtt.Messaging.Nats\Vtt.Messaging.Nats.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\Vtt.Persistence.Marten\Vtt.Persistence.Marten.csproj" />
+    <ProjectReference Include="..\Vtt.EngineeringFixture.Application\Vtt.EngineeringFixture.Application.csproj" />
+    <ProjectReference Include="..\Vtt.EngineeringFixture.Domain\Vtt.EngineeringFixture.Domain.csproj" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,54 @@
+{
+  "operations": {
+    "incrementEngineeringProbe": ["200", "400", "409", "413", "422"],
+    "getEngineeringProbeProjection": ["200", "404"],
+    "rebuildEngineeringProbeProjection": ["202"],
+    "getEngineeringOperation": ["200", "404"],
+    "cancelEngineeringOperation": ["202", "404"],
+    "listEngineeringQuarantine": ["200"],
+    "retryEngineeringQuarantine": ["202", "404"],
+    "retryEngineeringOutbox": ["202", "404"]
+  },
+  "schemas": {
+    "IncrementProbeRequest": {
+      "required": ["amount"],
+      "propertyTypes": { "amount": "integer" }
+    },
+    "IncrementProbeResponse": {
+      "required": ["probeId", "value", "aggregateVersion", "eventId", "projectionPending", "idempotencyReplayed", "correlationId"],
+      "propertyTypes": {
+        "probeId": "string",
+        "value": "integer",
+        "aggregateVersion": "integer",
+        "eventId": "string",
+        "projectionPending": "boolean",
+        "idempotencyReplayed": "boolean",
+        "correlationId": "string"
+      }
+    },
+    "ProbeProjectionResponse": {
+      "required": ["probeId", "value", "projectionVersion", "sourceAggregateVersion", "asOf", "checksum"],
+      "propertyTypes": {
+        "probeId": "string",
+        "value": "integer",
+        "projectionVersion": "integer",
+        "sourceAggregateVersion": "integer",
+        "asOf": "string",
+        "checksum": "string"
+      }
+    },
+    "QuarantineResponse": {
+      "required": ["quarantineId", "eventId", "consumer", "subject", "reasonCode", "retryCount", "quarantinedAt", "retriedAt"],
+      "propertyTypes": {
+        "quarantineId": "string",
+        "eventId": ["string", "null"],
+        "consumer": "string",
+        "subject": "string",
+        "reasonCode": "string",
+        "retryCount": "integer",
+        "quarantinedAt": "string",
+        "retriedAt": ["string", "null"]
+      }
+    }
+  }
+}
