@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+    <RootNamespace>Vtt.EngineeringFixture.UnitTests</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector" PrivateAssets="all" />
+    <PackageReference Include="FsCheck.Xunit" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.runner.visualstudio" PrivateAssets="all" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\BuildingBlocks\Vtt.Cqrs\Vtt.Cqrs.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\Vtt.EventSourcing\Vtt.EventSourcing.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\Vtt.Messaging\Vtt.Messaging.csproj" />
+    <ProjectReference Include="..\Vtt.EngineeringFixture.Application\Vtt.EngineeringFixture.Application.csproj" />
+    <ProjectReference Include="..\Vtt.EngineeringFixture.Domain\Vtt.EngineeringFixture.Domain.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+</Project>

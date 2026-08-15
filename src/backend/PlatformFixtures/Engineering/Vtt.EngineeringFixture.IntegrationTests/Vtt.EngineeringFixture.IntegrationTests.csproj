@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+    <RootNamespace>Vtt.EngineeringFixture.IntegrationTests</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="NATS.Net" />
+    <PackageReference Include="Testcontainers" />
+    <PackageReference Include="Testcontainers.PostgreSql" />
+    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.runner.visualstudio" PrivateAssets="all" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Vtt.EngineeringFixture.Api\Vtt.EngineeringFixture.Api.csproj" />
+    <ProjectReference Include="..\Vtt.EngineeringFixture.Application\Vtt.EngineeringFixture.Application.csproj" />
+    <ProjectReference Include="..\Vtt.EngineeringFixture.Infrastructure\Vtt.EngineeringFixture.Infrastructure.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+</Project>

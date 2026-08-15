@@ -10,11 +10,14 @@
   },
   "scripts": {
     "build": "pnpm --filter @vtt/api-client build && pnpm --filter @vtt/ui build && pnpm --filter @vtt/testing build && pnpm --filter @vtt/web build",
+    "contracts:check": "node eng/verify-contracts.mjs",
+    "contracts:generate": "node eng/generate-contracts.mjs",
     "dev": "pnpm --filter @vtt/web dev",
     "e2e": "playwright test",
     "format": "prettier --write eslint.config.js playwright.config.ts package.json pnpm-workspace.yaml \"eng/*.mjs\" \"src/frontend/**/*.{ts,tsx,js,mjs,json,css,yaml}\"",
     "format:check": "prettier --check eslint.config.js playwright.config.ts package.json pnpm-workspace.yaml \"eng/*.mjs\" \"src/frontend/**/*.{ts,tsx,js,mjs,json,css,yaml}\"",
-    "lint": "eslint . --max-warnings=0 && node eng/verify-frontend-boundaries.mjs",
+    "lint": "eslint . --max-warnings=0 && node eng/verify-frontend-boundaries.mjs && pnpm contracts:check",
+    "platform:benchmark": "node eng/benchmark-engineering.mjs",
     "security:scan": "node eng/verify-secrets.mjs",
     "test": "pnpm --filter @vtt/web test",
     "typecheck": "pnpm -r --if-present typecheck"

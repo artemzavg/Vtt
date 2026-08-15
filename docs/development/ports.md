@@ -8,6 +8,7 @@
 | Web | 55173 | apps | React shell |
 | Edge | 5100 | apps | BFF/API smoke |
 | Identity…Search | 5101–5111 | apps | API skeletons в порядке roadmap |
+| Engineering Fixture | 55120 | platform-tests | CQRS/Event Store/outbox/inbox/rebuild exemplar |
 | PostgreSQL | 55432 | core/default | service databases |
 | NATS client | 54222 | core/default | JetStream |
 | NATS monitor | 58222 | core/default | health/diagnostics |
@@ -28,4 +29,3 @@ Gameplay 5109, ChatDice 5110, Search 5111.
 ClamAV не запускается на шаге 01: scanner вводится вместе с isolated media worker на
 шаге 09. Зарезервировано имя profile `media-scan` и только внутренний TCP 3310;
 host port публиковаться не будет.
-

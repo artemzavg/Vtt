@@ -1,10 +1,12 @@
 # Шаг 02. Engineering platform: CQRS, Event Sourcing, contracts и observability
 
-Статус: `Planned`  
+Статус: `Implemented / local verification passed`
 Зависимость: шаг 01  
 Результат: любой сервис может безопасно принять команду, записать event stream и
 outbox, построить projection, повторно обработать integration event и быть
 диагностируемым одинаковым способом.
+
+Evidence: [протокол тестирования шага 02](../testing/step-02-test-report.md).
 
 ## Затрагиваемые сервисы
 
@@ -70,13 +72,13 @@ Search — projection consumer template. Domain logic следующих шаг�
 
 ## Definition of Ready
 
-- [ ] ADR подтверждает Marten/PostgreSQL и NATS JetStream;
-- [ ] event envelope и public API conventions согласованы;
-- [ ] chosen test aggregate не несёт будущую бизнес-семантику;
-- [ ] database-per-service local strategy и migration naming утверждены;
-- [ ] retry/dead-letter/retention limits определены;
-- [ ] PII/log redaction policy и metric cardinality rules готовы;
-- [ ] CI имеет доступ к container runtime для Testcontainers.
+- [x] ADR подтверждает Marten/PostgreSQL и NATS JetStream;
+- [x] event envelope и public API conventions согласованы;
+- [x] chosen test aggregate не несёт будущую бизнес-семантику;
+- [x] database-per-service local strategy и migration naming утверждены;
+- [x] retry/dead-letter/retention limits определены;
+- [x] PII/log redaction policy и metric cardinality rules готовы;
+- [x] CI имеет доступ к container runtime для Testcontainers.
 
 ## Подробный план ручного тестирования
 
@@ -97,15 +99,15 @@ Search — projection consumer template. Domain logic следующих шаг�
 
 ## Definition of Done
 
-- [ ] exemplar aggregate покрыт unit/property/integration tests;
-- [ ] expected-version и HTTP idempotency semantics стабильны;
-- [ ] outbox/inbox выдержали crash-window и duplicate delivery tests;
-- [ ] projection rebuild/checksum и poison recovery работают;
-- [ ] OpenAPI/AsyncAPI/schemas опубликованы и client generated reproducibly;
-- [ ] migration применяется к clean и previous schema fixture;
-- [ ] traces/metrics/logs видны; PII/secret redaction test зелёный;
-- [ ] architecture docs/runbooks/template обновлены;
-- [ ] M02-01…M02-12 пройдены без P0/P1 defects.
+- [x] exemplar aggregate покрыт unit/property/integration tests;
+- [x] expected-version и HTTP idempotency semantics стабильны;
+- [x] outbox/inbox выдержали crash-window и duplicate delivery tests;
+- [x] projection rebuild/checksum и poison recovery работают;
+- [x] OpenAPI/AsyncAPI/schemas опубликованы и client generated reproducibly;
+- [x] migration применяется к clean и previous schema fixture;
+- [x] traces/metrics/logs видны; PII/secret redaction test зелёный;
+- [x] architecture docs/runbooks/template обновлены;
+- [x] M02-01…M02-12 пройдены без P0/P1 defects.
 
 ## Критический check перед завершением
 

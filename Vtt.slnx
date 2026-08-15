@@ -2,7 +2,22 @@
   <Folder Name="/src/" />
   <Folder Name="/src/backend/" />
   <Folder Name="/src/backend/BuildingBlocks/">
+    <Project Path="src/backend/BuildingBlocks/Vtt.Cqrs/Vtt.Cqrs.csproj" />
+    <Project Path="src/backend/BuildingBlocks/Vtt.EventSourcing/Vtt.EventSourcing.csproj" />
+    <Project Path="src/backend/BuildingBlocks/Vtt.Messaging.Nats/Vtt.Messaging.Nats.csproj" />
+    <Project Path="src/backend/BuildingBlocks/Vtt.Messaging/Vtt.Messaging.csproj" />
+    <Project Path="src/backend/BuildingBlocks/Vtt.Persistence.Marten/Vtt.Persistence.Marten.csproj" />
     <Project Path="src/backend/BuildingBlocks/Vtt.ServiceDefaults/Vtt.ServiceDefaults.csproj" />
+  </Folder>
+  <Folder Name="/src/backend/PlatformFixtures/" />
+  <Folder Name="/src/backend/PlatformFixtures/Engineering/">
+    <Project Path="src/backend/PlatformFixtures/Engineering/Vtt.EngineeringFixture.Api/Vtt.EngineeringFixture.Api.csproj" />
+    <Project Path="src/backend/PlatformFixtures/Engineering/Vtt.EngineeringFixture.Application/Vtt.EngineeringFixture.Application.csproj" />
+    <Project Path="src/backend/PlatformFixtures/Engineering/Vtt.EngineeringFixture.Contracts/Vtt.EngineeringFixture.Contracts.csproj" />
+    <Project Path="src/backend/PlatformFixtures/Engineering/Vtt.EngineeringFixture.Domain/Vtt.EngineeringFixture.Domain.csproj" />
+    <Project Path="src/backend/PlatformFixtures/Engineering/Vtt.EngineeringFixture.Infrastructure/Vtt.EngineeringFixture.Infrastructure.csproj" />
+    <Project Path="src/backend/PlatformFixtures/Engineering/Vtt.EngineeringFixture.IntegrationTests/Vtt.EngineeringFixture.IntegrationTests.csproj" />
+    <Project Path="src/backend/PlatformFixtures/Engineering/Vtt.EngineeringFixture.UnitTests/Vtt.EngineeringFixture.UnitTests.csproj" />
   </Folder>
   <Folder Name="/src/backend/Services/" />
   <Folder Name="/src/backend/Services/Campaign/">
@@ -116,5 +131,8 @@
   <Folder Name="/tests/" />
   <Folder Name="/tests/architecture/">
     <Project Path="tests/architecture/Vtt.ArchitectureTests/Vtt.ArchitectureTests.csproj" />
+  </Folder>
+  <Folder Name="/tests/contracts/">
+    <Project Path="tests/contracts/Vtt.ContractTests/Vtt.ContractTests.csproj" />
   </Folder>
 </Solution>

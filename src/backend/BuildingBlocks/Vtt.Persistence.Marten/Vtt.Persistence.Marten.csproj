@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>Vtt.Persistence.Marten</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Marten" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Vtt.EventSourcing\Vtt.EventSourcing.csproj" />
+    <ProjectReference Include="..\Vtt.Messaging\Vtt.Messaging.csproj" />
+  </ItemGroup>
+</Project>

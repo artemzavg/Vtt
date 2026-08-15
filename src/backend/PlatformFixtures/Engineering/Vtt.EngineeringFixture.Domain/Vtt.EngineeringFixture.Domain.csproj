@@ -1,0 +1,8 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>Vtt.EngineeringFixture.Domain</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\BuildingBlocks\Vtt.EventSourcing\Vtt.EventSourcing.csproj" />
+  </ItemGroup>
+</Project>

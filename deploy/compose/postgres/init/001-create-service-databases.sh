@@ -13,6 +13,7 @@ contexts=(
   gameplay
   chatdice
   search
+  engineering
 )
 
 for context in "${contexts[@]}"; do
@@ -35,4 +36,3 @@ SQL
     createdb       --username "${POSTGRES_USER}"       --owner "${role_name}"       "${database_name}"
   fi
 done
-

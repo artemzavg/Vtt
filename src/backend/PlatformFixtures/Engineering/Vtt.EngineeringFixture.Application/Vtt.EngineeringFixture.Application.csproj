@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>Vtt.EngineeringFixture.Application</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\BuildingBlocks\Vtt.Cqrs\Vtt.Cqrs.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\Vtt.Messaging\Vtt.Messaging.csproj" />
+    <ProjectReference Include="..\Vtt.EngineeringFixture.Domain\Vtt.EngineeringFixture.Domain.csproj" />
+  </ItemGroup>
+</Project>
