@@ -1,6 +1,6 @@
 # Шаг 03. Identity & Access: регистрация, вход и browser session
 
-Статус: `Planned`  
+Статус: `Completed` — 2026-08-15; M03-01…M03-13 приняты, открытых P0/P1 нет.
 Зависимость: шаг 02  
 Результат: пользователь безопасно создаёт аккаунт, подтверждает email, входит,
 обновляет browser session, видит и отзывает свои сессии, восстанавливает пароль.
@@ -44,13 +44,13 @@
 
 ## Definition of Ready
 
-- [ ] решено, self-hosted OpenIddict или managed IdP; public contract одинаков;
-- [ ] email provider/local Mailpit и sender domain strategy определены;
-- [ ] password/session/challenge/lockout policies утверждены;
-- [ ] cookie/CSRF/CORS/redirect URI diagram прошёл threat review;
-- [ ] consent/privacy text versioned хотя бы fixture-документом;
-- [ ] account deletion scope явно отложен и не обещан UI;
-- [ ] test users/domains не могут отправить письмо реальному адресату из CI.
+- [x] решено, self-hosted OpenIddict или managed IdP; public contract одинаков;
+- [x] email provider/local Mailpit и sender domain strategy определены;
+- [x] password/session/challenge/lockout policies утверждены;
+- [x] cookie/CSRF/CORS/redirect URI diagram прошёл threat review;
+- [x] consent/privacy text versioned хотя бы fixture-документом;
+- [x] account deletion scope явно отложен и не обещан UI;
+- [x] test users/domains не могут отправить письмо реальному адресату из CI.
 
 ## Подробный план ручного тестирования
 
@@ -72,14 +72,14 @@
 
 ## Definition of Done
 
-- [ ] OIDC/BFF/password/email/session flows работают end-to-end;
-- [ ] tokens/challenges hashed/rotated, signing keys не в repo;
-- [ ] anti-enumeration, CSRF, redirect allowlist и rate limits tested;
-- [ ] User lifecycle integration events минимальны и не содержат PII;
-- [ ] UI имеет accessible errors/loading и session management;
-- [ ] audit/metrics/redaction и runbook compromised session готовы;
-- [ ] unit/integration/OIDC/E2E/security tests зелёные;
-- [ ] M03-01…M03-13 пройдены, P0/P1 defects отсутствуют.
+- [x] OIDC/BFF/password/email/session flows работают end-to-end;
+- [x] tokens/challenges hashed/rotated, signing keys не в repo;
+- [x] anti-enumeration, CSRF, redirect allowlist и rate limits tested;
+- [x] User lifecycle integration events минимальны и не содержат PII;
+- [x] UI имеет accessible errors/loading и session management;
+- [x] audit/metrics/redaction и runbook compromised session готовы;
+- [x] unit/integration/OIDC/E2E/security tests зелёные;
+- [x] M03-01…M03-13 пройдены, P0/P1 defects отсутствуют.
 
 ## Критический check перед завершением
 

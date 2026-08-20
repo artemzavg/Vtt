@@ -2,6 +2,9 @@ import { useEffect, useState } from "react";
 
 import type { RuntimeConfig } from "./config/runtime-config";
 import { HomePage } from "./pages/home-page";
+import { AccountPage } from "./pages/account-page";
+import { AuthPage } from "./pages/auth-page";
+import { ChallengePage } from "./pages/challenge-page";
 import { SystemPage } from "./pages/system-page";
 
 interface AppProps {
@@ -72,14 +75,46 @@ export function App({ config }: AppProps) {
           >
             Система
           </a>
+          <a
+            href="/account"
+            aria-current={path === "/account" ? "page" : undefined}
+            onClick={(event) => {
+              event.preventDefault();
+              navigate("/account");
+            }}
+          >
+            Аккаунт
+          </a>
+          <a
+            href="/auth"
+            aria-current={path === "/auth" ? "page" : undefined}
+            onClick={(event) => {
+              event.preventDefault();
+              navigate("/auth");
+            }}
+          >
+            Войти
+          </a>
         </nav>
       </header>
 
-      {path === "/system" ? <SystemPage config={config} /> : <HomePage />}
+      {path === "/system" ? (
+        <SystemPage config={config} />
+      ) : path === "/auth" ? (
+        <AuthPage apiBaseUrl={config.apiBaseUrl} onAuthenticated={() => navigate("/account")} />
+      ) : path === "/account" ? (
+        <AccountPage apiBaseUrl={config.apiBaseUrl} onLoggedOut={() => navigate("/auth")} />
+      ) : path === "/verify-email" ? (
+        <ChallengePage apiBaseUrl={config.apiBaseUrl} purpose="verify" />
+      ) : path === "/reset-password" ? (
+        <ChallengePage apiBaseUrl={config.apiBaseUrl} purpose="reset" />
+      ) : (
+        <HomePage />
+      )}
 
       <footer>
-        <span>Step 01 · foundation only</span>
-        <span>Нет бизнес-данных</span>
+        <span>Step 03 · Identity & Access</span>
+        <span>Сессии защищены BFF</span>
       </footer>
     </div>
   );

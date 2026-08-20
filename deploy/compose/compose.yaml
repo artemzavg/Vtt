@@ -257,27 +257,113 @@ services:
 
   edge:
     <<: *api-common
-    image: vtt/edge:0.0.0-foundation
+    image: vtt/edge:0.0.0-step03
     build:
       context: ../..
       dockerfile: deploy/compose/Dockerfile.api
       args:
         PROJECT_PATH: src/backend/Services/Edge/Vtt.Edge.Api/Vtt.Edge.Api.csproj
         API_ASSEMBLY: Vtt.Edge.Api.dll
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      VTT_READINESS_TCP_ENDPOINTS: identity:8080
+      OTEL_EXPORTER_OTLP_ENDPOINT: ${VTT_OTEL_EXPORTER_OTLP_ENDPOINT:-http://otel-collector:4317}
+      OTEL_EXPORTER_OTLP_PROTOCOL: grpc
+      Identity__BaseUrl: http://identity:8080
+      Identity__Oidc__Authority: http://127.0.0.1:5101/
+      Identity__Oidc__BackchannelAuthority: http://identity:8080/
+      Identity__Oidc__ClientId: vtt-web-bff
+      Identity__Oidc__CallbackPath: /signin-oidc
+      Identity__Oidc__PublicWebBaseUrl: http://127.0.0.1:${VTT_WEB_PORT:-55173}
+      Edge__DataProtectionPath: /var/vtt-edge-keys
+    volumes:
+      - edge-keys:/var/vtt-edge-keys
+    depends_on:
+      identity:
+        condition: service_healthy
+      edge-keys-init:
+        condition: service_completed_successfully
+      otel-collector:
+        condition: service_started
+        required: false
     ports:
       - "127.0.0.1:5100:8080"
 
   identity:
     <<: *api-common
-    image: vtt/identity:0.0.0-foundation
+    image: vtt/identity:0.0.0-step03
     build:
       context: ../..
       dockerfile: deploy/compose/Dockerfile.api
       args:
         PROJECT_PATH: src/backend/Services/Identity/Vtt.Identity.Api/Vtt.Identity.Api.csproj
         API_ASSEMBLY: Vtt.Identity.Api.dll
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      VTT_READINESS_TCP_ENDPOINTS: postgres:5432
+      OTEL_EXPORTER_OTLP_ENDPOINT: ${VTT_OTEL_EXPORTER_OTLP_ENDPOINT:-http://otel-collector:4317}
+      OTEL_EXPORTER_OTLP_PROTOCOL: grpc
+      VTT_APPLY_SCHEMA: "true"
+      VTT_IDENTITY_CONNECTION_STRING: Host=postgres;Port=5432;Database=vtt_identity;Username=vtt_identity;Password=${VTT_LOCAL_DB_PASSWORD:-local-only-service-db}
+      Identity__Email__Enabled: "true"
+      Identity__Email__Host: mailpit
+      Identity__Email__Port: "1025"
+      Identity__Email__PublicWebBaseUrl: http://localhost:${VTT_WEB_PORT:-55173}
+      Identity__Oidc__Issuer: http://127.0.0.1:5101/
+      Identity__Oidc__WebRedirectUri: http://127.0.0.1:5100/signin-oidc
+      Identity__DataProtectionPath: /var/vtt-identity-keys
+    volumes:
+      - identity-keys:/var/vtt-identity-keys
+    depends_on:
+      postgres:
+        condition: service_healthy
+      postgres-init:
+        condition: service_completed_successfully
+      identity-keys-init:
+        condition: service_completed_successfully
+      mailpit:
+        condition: service_healthy
+      otel-collector:
+        condition: service_started
+        required: false
     ports:
       - "127.0.0.1:5101:8080"
+
+  identity-keys-init:
+    profiles: ["apps"]
+    image: alpine:3.23.3
+    restart: "no"
+    command: ["chown", "-R", "1654:1654", "/keys"]
+    volumes:
+      - identity-keys:/keys
+    networks:
+      - vtt
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    deploy:
+      resources:
+        limits:
+          cpus: "0.10"
+          memory: 16M
+
+  edge-keys-init:
+    profiles: ["apps"]
+    image: alpine:3.23.3
+    restart: "no"
+    command: ["chown", "-R", "1654:1654", "/keys"]
+    volumes:
+      - edge-keys:/keys
+    networks:
+      - vtt
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    deploy:
+      resources:
+        limits:
+          cpus: "0.10"
+          memory: 16M
 
   campaign:
     <<: *api-common
@@ -647,7 +733,7 @@ services:
           memory: 256M
 
   mailpit:
-    profiles: ["dev-tools"]
+    profiles: ["apps", "dev-tools"]
     image: axllent/mailpit:v1.27.1
     restart: unless-stopped
     ports:
@@ -674,6 +760,10 @@ networks:
     driver: bridge
 
 volumes:
+  identity-keys:
+    name: vtt_identity_keys
+  edge-keys:
+    name: vtt_edge_keys
   postgres-data:
     name: vtt_postgres_data
   nats-data:

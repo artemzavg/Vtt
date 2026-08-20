@@ -1,0 +1,344 @@
+{
+  "openapi": "3.1.1",
+  "info": {
+    "title": "VTT Identity BFF API",
+    "version": "1.0.0"
+  },
+  "servers": [{ "url": "/api" }],
+  "paths": {
+    "/v1/auth/registrations": {
+      "post": {
+        "operationId": "registerUser",
+        "requestBody": { "$ref": "#/components/requestBodies/Register" },
+        "responses": {
+          "202": { "$ref": "#/components/responses/Accepted" },
+          "400": { "$ref": "#/components/responses/Problem" },
+          "429": { "$ref": "#/components/responses/Problem" }
+        }
+      }
+    },
+    "/v1/auth/email-verifications": {
+      "post": {
+        "operationId": "verifyEmail",
+        "requestBody": { "$ref": "#/components/requestBodies/Challenge" },
+        "responses": {
+          "204": { "description": "Verified" },
+          "400": { "$ref": "#/components/responses/Problem" }
+        }
+      }
+    },
+    "/v1/auth/password-resets": {
+      "post": {
+        "operationId": "requestPasswordReset",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/ResetRequest" } }
+          }
+        },
+        "responses": {
+          "202": { "$ref": "#/components/responses/Accepted" },
+          "429": { "$ref": "#/components/responses/Problem" }
+        }
+      }
+    },
+    "/v1/auth/password-resets/complete": {
+      "post": {
+        "operationId": "completePasswordReset",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ResetCompleteRequest" }
+            }
+          }
+        },
+        "responses": {
+          "204": { "description": "Password changed" },
+          "400": { "$ref": "#/components/responses/Problem" }
+        }
+      }
+    },
+    "/v1/auth/login": {
+      "post": {
+        "operationId": "login",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/LoginRequest" } }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "HttpOnly session cookie issued",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/BrowserSession" } }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Problem" },
+          "429": { "$ref": "#/components/responses/Problem" }
+        }
+      }
+    },
+    "/v1/auth/oidc/start": {
+      "get": {
+        "operationId": "startOidcAuthorization",
+        "description": "Starts Authorization Code + PKCE for the active browser session. The callback is handled by the Edge BFF at /signin-oidc.",
+        "security": [{ "browserSession": [] }],
+        "parameters": [
+          {
+            "name": "returnUrl",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "string", "default": "/account" }
+          }
+        ],
+        "responses": {
+          "302": { "description": "Redirect to the trusted OIDC authorization endpoint" },
+          "401": { "$ref": "#/components/responses/Problem" },
+          "429": { "$ref": "#/components/responses/Problem" }
+        }
+      }
+    },
+    "/v1/auth/refresh": {
+      "post": {
+        "operationId": "refreshBrowserSession",
+        "security": [{ "browserSession": [], "csrf": [] }],
+        "responses": {
+          "200": {
+            "description": "Rotated HttpOnly session cookie",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/BrowserSession" } }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Problem" },
+          "403": { "$ref": "#/components/responses/Problem" }
+        }
+      }
+    },
+    "/v1/auth/logout": {
+      "post": {
+        "operationId": "logout",
+        "security": [{ "browserSession": [], "csrf": [] }],
+        "responses": {
+          "204": { "description": "Session revoked and cookies expired" },
+          "403": { "$ref": "#/components/responses/Problem" }
+        }
+      }
+    },
+    "/v1/me": {
+      "get": {
+        "operationId": "getMyProfile",
+        "security": [{ "browserSession": [] }],
+        "responses": {
+          "200": {
+            "description": "Profile",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/UserProfile" } }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Problem" }
+        }
+      },
+      "put": {
+        "operationId": "updateMyProfile",
+        "security": [{ "browserSession": [], "csrf": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/UpdateProfileRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated profile",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/UserProfile" } }
+            }
+          },
+          "409": { "$ref": "#/components/responses/Problem" }
+        }
+      }
+    },
+    "/v1/me/sessions": {
+      "get": {
+        "operationId": "listMySessions",
+        "security": [{ "browserSession": [] }],
+        "responses": {
+          "200": {
+            "description": "Login sessions",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/LoginSession" }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "revokeOtherSessions",
+        "security": [{ "browserSession": [], "csrf": [] }],
+        "responses": {
+          "204": { "description": "Other sessions revoked" },
+          "403": { "$ref": "#/components/responses/Problem" }
+        }
+      }
+    },
+    "/v1/me/sessions/{sessionId}": {
+      "delete": {
+        "operationId": "revokeSession",
+        "security": [{ "browserSession": [], "csrf": [] }],
+        "parameters": [
+          {
+            "name": "sessionId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "responses": {
+          "204": { "description": "Session revoked" },
+          "403": { "$ref": "#/components/responses/Problem" }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "browserSession": { "type": "apiKey", "in": "cookie", "name": "vtt.session" },
+      "csrf": { "type": "apiKey", "in": "header", "name": "X-CSRF-Token" }
+    },
+    "requestBodies": {
+      "Register": {
+        "required": true,
+        "content": {
+          "application/json": { "schema": { "$ref": "#/components/schemas/RegisterRequest" } }
+        }
+      },
+      "Challenge": {
+        "required": true,
+        "content": {
+          "application/json": { "schema": { "$ref": "#/components/schemas/ChallengeRequest" } }
+        }
+      }
+    },
+    "responses": {
+      "Accepted": { "description": "Generic anti-enumeration acceptance" },
+      "Problem": {
+        "description": "RFC 9457 Problem Details",
+        "content": {
+          "application/problem+json": {
+            "schema": { "$ref": "#/components/schemas/ProblemDetails" }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "RegisterRequest": {
+        "type": "object",
+        "required": ["email", "password", "displayName"],
+        "properties": {
+          "email": { "type": "string", "format": "email" },
+          "password": { "type": "string", "format": "password", "minLength": 12, "maxLength": 128 },
+          "displayName": { "type": "string", "minLength": 2, "maxLength": 80 },
+          "locale": { "type": "string" },
+          "timeZone": { "type": "string" },
+          "termsVersion": { "type": "string" },
+          "privacyVersion": { "type": "string" }
+        }
+      },
+      "ChallengeRequest": {
+        "type": "object",
+        "required": ["challengeToken"],
+        "properties": { "challengeToken": { "type": "string", "writeOnly": true } }
+      },
+      "ResetRequest": {
+        "type": "object",
+        "required": ["email"],
+        "properties": { "email": { "type": "string", "format": "email" } }
+      },
+      "ResetCompleteRequest": {
+        "type": "object",
+        "required": ["challengeToken", "newPassword"],
+        "properties": {
+          "challengeToken": { "type": "string", "writeOnly": true },
+          "newPassword": { "type": "string", "format": "password", "writeOnly": true }
+        }
+      },
+      "LoginRequest": {
+        "type": "object",
+        "required": ["email", "password"],
+        "properties": {
+          "email": { "type": "string", "format": "email" },
+          "password": { "type": "string", "format": "password", "writeOnly": true },
+          "deviceLabel": { "type": ["string", "null"] }
+        }
+      },
+      "BrowserSession": {
+        "type": "object",
+        "required": ["expiresAt", "user"],
+        "properties": {
+          "expiresAt": { "type": "string", "format": "date-time" },
+          "user": { "$ref": "#/components/schemas/UserProfile" }
+        }
+      },
+      "UserProfile": {
+        "type": "object",
+        "required": ["userId", "displayName", "locale", "timeZone", "version"],
+        "properties": {
+          "userId": { "type": "string", "format": "uuid" },
+          "displayName": { "type": "string" },
+          "locale": { "type": "string" },
+          "timeZone": { "type": "string" },
+          "version": { "type": "integer", "format": "int64" }
+        }
+      },
+      "UpdateProfileRequest": {
+        "type": "object",
+        "required": ["displayName", "locale", "timeZone", "version"],
+        "properties": {
+          "displayName": { "type": "string" },
+          "locale": { "type": "string" },
+          "timeZone": { "type": "string" },
+          "version": { "type": "integer", "format": "int64" }
+        }
+      },
+      "LoginSession": {
+        "type": "object",
+        "required": [
+          "sessionId",
+          "deviceLabel",
+          "createdAt",
+          "lastUsedAt",
+          "expiresAt",
+          "isCurrent",
+          "isRevoked"
+        ],
+        "properties": {
+          "sessionId": { "type": "string", "format": "uuid" },
+          "deviceLabel": { "type": "string" },
+          "createdAt": { "type": "string", "format": "date-time" },
+          "lastUsedAt": { "type": "string", "format": "date-time" },
+          "expiresAt": { "type": "string", "format": "date-time" },
+          "isCurrent": { "type": "boolean" },
+          "isRevoked": { "type": "boolean" }
+        }
+      },
+      "ProblemDetails": {
+        "type": "object",
+        "required": ["status", "code"],
+        "properties": {
+          "status": { "type": "integer" },
+          "code": { "type": "string" },
+          "title": { "type": "string" },
+          "detail": { "type": "string" }
+        }
+      }
+    }
+  }
+}

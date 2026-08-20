@@ -68,6 +68,7 @@ public static class ServiceDefaultsExtensions
                         "Vtt.Outbox",
                         "Vtt.Inbox",
                         "Vtt.Projections",
+                        "Vtt.Identity",
                         "Npgsql",
                         "NATS.Client")
                     .AddOtlpExporter(exporter => exporter.Endpoint = endpoint))

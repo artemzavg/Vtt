@@ -21,6 +21,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Vtt.Edge.Api\Vtt.Edge.Api.csproj" />
+    <ProjectReference Include="..\Vtt.Edge.Application\Vtt.Edge.Application.csproj" />
   </ItemGroup>
 
   <ItemGroup>

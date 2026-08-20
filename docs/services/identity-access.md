@@ -7,9 +7,9 @@ platform login sessions, external identity links, consent и account lifecycle.
 Не владеет ролями кампании, character ACL или join room permissions — это Campaign/
 owning contexts.
 
-Реализация: ASP.NET Core Identity + OpenIddict/OIDC provider в .NET service либо
-эквивалентный managed IdP behind the same contracts. Выбор managed/self-hosted
-фиксируется ADR; пароли не изобретаются самостоятельно.
+Реализация шага 03: ASP.NET Core `PasswordHasher`, OpenIddict/OIDC provider и EF Core
+в .NET service. Self-hosted решение и BFF boundary зафиксированы ADR 0003; managed
+IdP остаётся возможной заменой за теми же Edge contracts.
 
 ## Aggregates, entities, value objects
 
@@ -87,13 +87,15 @@ Product endpoints:
 |---|---|---|
 | `POST /api/v1/auth/registrations` | `email`, `password`, `locale`, consent versions | создать pending account; always generic anti-enumeration response |
 | `POST /api/v1/auth/email-verifications` | `challengeToken` | подтвердить email |
-| `POST /api/v1/auth/password-resets:request` | `email` | generic response, rate limited |
-| `POST /api/v1/auth/password-resets:complete` | token, new password | rotate security stamp/revoke sessions |
-| `GET /api/v1/me` | none | private account/profile/security summary |
-| `PATCH /api/v1/me/profile` | `displayName`, `locale`, `timezone`, `avatarAssetId`; `If-Match` | изменить профиль |
-| `GET /api/v1/me/sessions` | cursor | список login sessions without token values |
-| `DELETE /api/v1/me/sessions/{sessionId}` | own session id | revoke one |
-| `POST /api/v1/me/sessions:revoke-others` | step-up proof | revoke all except current |
+| `POST /api/v1/auth/password-resets` | `email` | generic response, rate limited |
+| `POST /api/v1/auth/password-resets/complete` | token, new password | rotate security stamp/revoke sessions |
+| `GET /api/v1/auth/oidc/start` (Edge BFF) | HttpOnly session cookie, safe relative `returnUrl` | создать protected state/nonce/correlation и начать Authorization Code + PKCE |
+| `GET /signin-oidc` (Edge BFF callback) | authorization `code`, protected `state` | одноразовый code exchange, issuer/audience/nonce и BFF subject binding; redirect на web |
+| `GET /api/v1/me` (Edge BFF) | HttpOnly session cookie | private profile summary |
+| `PUT /api/v1/me` (Edge BFF) | `displayName`, `locale`, `timeZone`, `version`; CSRF | optimistic profile update |
+| `GET /api/v1/me/sessions` (Edge BFF) | cookie | список sessions without token values |
+| `DELETE /api/v1/me/sessions/{sessionId}` (Edge BFF) | cookie + CSRF | revoke one |
+| `DELETE /api/v1/me/sessions` (Edge BFF) | cookie + CSRF | revoke all except current |
 | `POST /api/v1/me/passkeys/options` | ceremony type | WebAuthn options |
 | `POST /api/v1/me/passkeys` | attestation/response, label | register passkey |
 | `DELETE /api/v1/me/passkeys/{passkeyId}` | step-up; `If-Match` | remove factor |

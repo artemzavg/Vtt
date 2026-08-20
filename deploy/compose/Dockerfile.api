@@ -14,6 +14,8 @@ RUN dotnet publish "$PROJECT_PATH" \
 FROM mcr.microsoft.com/dotnet/aspnet:10.0.11-alpine3.23 AS runtime
 WORKDIR /app
 
+RUN apk add --no-cache krb5-libs
+
 ARG API_ASSEMBLY
 ENV ASPNETCORE_HTTP_PORTS=8080 \
     DOTNET_EnableDiagnostics=0 \
