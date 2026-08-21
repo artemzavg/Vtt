@@ -114,6 +114,12 @@ public static class EdgeInfrastructureExtensions
             client.BaseAddress = new Uri(baseUrl, UriKind.Absolute);
             client.Timeout = TimeSpan.FromSeconds(5);
         });
+        var campaignBaseUrl = configuration["Campaign:BaseUrl"] ?? "http://localhost:5102";
+        services.AddHttpClient<ICampaignGateway, CampaignHttpGateway>(client =>
+        {
+            client.BaseAddress = new Uri(campaignBaseUrl, UriKind.Absolute);
+            client.Timeout = TimeSpan.FromSeconds(5);
+        });
         return services;
     }
 }

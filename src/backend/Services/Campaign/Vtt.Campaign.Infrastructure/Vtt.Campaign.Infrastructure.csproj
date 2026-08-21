@@ -4,7 +4,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
     <ProjectReference Include="..\Vtt.Campaign.Application\Vtt.Campaign.Application.csproj" />
     <ProjectReference Include="..\Vtt.Campaign.Domain\Vtt.Campaign.Domain.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\Vtt.Messaging\Vtt.Messaging.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\Vtt.Messaging.Nats\Vtt.Messaging.Nats.csproj" />
   </ItemGroup>
 </Project>

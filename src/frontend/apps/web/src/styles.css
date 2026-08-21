@@ -328,6 +328,65 @@ h1 {
   margin-top: 1rem;
 }
 
+.campaign-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(260px, 1fr);
+  gap: 1rem;
+}
+
+.campaign-layout aside {
+  display: grid;
+  align-content: start;
+  gap: 1rem;
+}
+
+.campaign-grid {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.campaign-card {
+  display: grid;
+  gap: 0.35rem;
+  width: 100%;
+  padding: 1rem;
+  color: var(--ink);
+  text-align: left;
+  background: var(--panel-raised);
+  border: 1px solid var(--line);
+}
+
+.campaign-card strong {
+  font-family: Georgia, serif;
+  font-size: 1.25rem;
+}
+
+.campaign-heading {
+  margin-top: 2rem;
+}
+
+.campaign-actions,
+.inline-form {
+  display: flex;
+  gap: 0.75rem;
+  align-items: end;
+  margin-bottom: 1rem;
+}
+
+.compact-field {
+  width: min(160px, 100%);
+}
+
+.invite-token {
+  display: block;
+  padding: 1rem;
+  overflow-wrap: anywhere;
+  font-family: ui-monospace, "Cascadia Code", monospace;
+  color: var(--gold-bright);
+  background: var(--background);
+  border: 1px dashed var(--gold);
+}
+
 .panel-heading h2 {
   margin: 0;
   font-size: 1.35rem;
@@ -455,6 +514,16 @@ footer {
 
   .foundation-grid {
     grid-template-columns: 1fr;
+  }
+
+  .campaign-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .campaign-actions,
+  .inline-form {
+    align-items: stretch;
+    flex-direction: column;
   }
 
   .foundation-grid article {

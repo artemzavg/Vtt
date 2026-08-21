@@ -98,7 +98,7 @@ reported by operation, campaign itself remains valid.
 | `POST /api/v1/campaigns/{id}/invitations` | role, expiresAt, maxUses, guestAllowed, email restriction | create opaque invite; token shown once |
 | `GET /api/v1/campaigns/{id}/invitations` | state/cursor | invitation metadata, never token |
 | `DELETE /api/v1/campaigns/{id}/invitations/{inviteId}` | `If-Match` | revoke |
-| `POST /api/v1/invitations/{token}:accept` | optional displayName/activeCharacterId | atomically consume and join |
+| `POST /api/v1/invitations:accept` | token в JSON body | atomically consume and join; secret не попадает в URL/access logs |
 | `GET /api/v1/campaigns/{id}/permissions/effective` | `resourceType`, `resourceId`, optional subject | policy explanation for authorized caller |
 | `PUT /api/v1/campaigns/{id}/settings` | automation/dice/guest/default ACL; `If-Match` | replace versioned settings |
 | `POST /api/v1/campaigns/{id}/ruleset-migrations:preview` | target version | async compatibility plan |
@@ -118,11 +118,20 @@ critical fallback с short deadline, не вызов для каждого frame
 
 ## Storage/read models
 
-- event streams Campaign/Membership/Invitation;
+- canonical append-only Campaign domain stream с optimistic stream version;
+- PostgreSQL aggregate/member/invite snapshots — синхронные projections для command
+  hydration и быстрых reads; domain event, snapshot, audit и integration outbox
+  фиксируются одной transaction;
 - `CampaignSummaryByUser`, `MemberDirectory`, `EffectiveCapability`,
   `ActiveInvitation`, `CampaignDependencySummary`;
 - invitation token strong hash, never logs/events;
 - policy snapshots signed/hash-versioned and short cached.
+- integration outbox доставляется в JetStream `VTT_EVENTS` через
+  `vtt.campaign.campaign.<event-name>.v1`; `Nats-Msg-Id = eventId` обеспечивает
+  transport deduplication, а `FOR UPDATE SKIP LOCKED` безопасно распределяет relay
+  между репликами;
+- consumer применяет policy event только при revision выше сохранённой; duplicate и
+  out-of-order delivery не могут откатить локальную authorization projection.
 
 ## Key tests/SLI
 

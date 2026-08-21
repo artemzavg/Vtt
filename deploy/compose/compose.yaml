@@ -266,10 +266,12 @@ services:
         API_ASSEMBLY: Vtt.Edge.Api.dll
     environment:
       ASPNETCORE_ENVIRONMENT: Development
-      VTT_READINESS_TCP_ENDPOINTS: identity:8080
+      VTT_READINESS_TCP_ENDPOINTS: identity:8080;campaign:8080
       OTEL_EXPORTER_OTLP_ENDPOINT: ${VTT_OTEL_EXPORTER_OTLP_ENDPOINT:-http://otel-collector:4317}
       OTEL_EXPORTER_OTLP_PROTOCOL: grpc
       Identity__BaseUrl: http://identity:8080
+      Campaign__BaseUrl: http://campaign:8080
+      Campaign__InternalApiKey: local-campaign-internal-key-change-me
       Identity__Oidc__Authority: http://127.0.0.1:5101/
       Identity__Oidc__BackchannelAuthority: http://identity:8080/
       Identity__Oidc__ClientId: vtt-web-bff
@@ -280,6 +282,8 @@ services:
       - edge-keys:/var/vtt-edge-keys
     depends_on:
       identity:
+        condition: service_healthy
+      campaign:
         condition: service_healthy
       edge-keys-init:
         condition: service_completed_successfully
@@ -367,13 +371,29 @@ services:
 
   campaign:
     <<: *api-common
-    image: vtt/campaign:0.0.0-foundation
+    image: vtt/campaign:0.0.0-step04
     build:
       context: ../..
       dockerfile: deploy/compose/Dockerfile.api
       args:
         PROJECT_PATH: src/backend/Services/Campaign/Vtt.Campaign.Api/Vtt.Campaign.Api.csproj
         API_ASSEMBLY: Vtt.Campaign.Api.dll
+    environment:
+      ConnectionStrings__campaign: Host=postgres;Port=5432;Database=vtt_campaign;Username=vtt_campaign;Password=${VTT_LOCAL_DB_PASSWORD:-local-only-service-db}
+      Campaign__InternalApiKey: local-campaign-internal-key-change-me
+      Campaign__PolicySigningKey: local-development-policy-signing-key-change-me
+      VTT_APPLY_SCHEMA: "true"
+      NATS_URL: nats://nats:4222
+      VTT_READINESS_TCP_ENDPOINTS: postgres:5432;nats:4222
+      OTEL_EXPORTER_OTLP_ENDPOINT: ${VTT_OTEL_EXPORTER_OTLP_ENDPOINT:-http://otel-collector:4317}
+      OTEL_EXPORTER_OTLP_PROTOCOL: grpc
+    depends_on:
+      postgres:
+        condition: service_healthy
+      postgres-init:
+        condition: service_completed_successfully
+      nats-init:
+        condition: service_completed_successfully
     ports:
       - "127.0.0.1:5102:8080"
 

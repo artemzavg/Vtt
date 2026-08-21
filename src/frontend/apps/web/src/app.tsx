@@ -5,6 +5,8 @@ import { HomePage } from "./pages/home-page";
 import { AccountPage } from "./pages/account-page";
 import { AuthPage } from "./pages/auth-page";
 import { ChallengePage } from "./pages/challenge-page";
+import { CampaignPage } from "./pages/campaign-page";
+import { CampaignsPage } from "./pages/campaigns-page";
 import { SystemPage } from "./pages/system-page";
 
 interface AppProps {
@@ -56,6 +58,16 @@ export function App({ config }: AppProps) {
 
         <nav aria-label="Основная навигация">
           <a
+            href="/campaigns"
+            aria-current={path.startsWith("/campaigns") ? "page" : undefined}
+            onClick={(event) => {
+              event.preventDefault();
+              navigate("/campaigns");
+            }}
+          >
+            Кампании
+          </a>
+          <a
             href="/"
             aria-current={path === "/" ? "page" : undefined}
             onClick={(event) => {
@@ -104,6 +116,18 @@ export function App({ config }: AppProps) {
         <AuthPage apiBaseUrl={config.apiBaseUrl} onAuthenticated={() => navigate("/account")} />
       ) : path === "/account" ? (
         <AccountPage apiBaseUrl={config.apiBaseUrl} onLoggedOut={() => navigate("/auth")} />
+      ) : path === "/campaigns" ? (
+        <CampaignsPage
+          apiBaseUrl={config.apiBaseUrl}
+          onOpen={(campaignId) => navigate(`/campaigns/${campaignId}`)}
+          onUnauthorized={() => navigate("/auth")}
+        />
+      ) : path.startsWith("/campaigns/") ? (
+        <CampaignPage
+          apiBaseUrl={config.apiBaseUrl}
+          campaignId={path.slice("/campaigns/".length)}
+          onBack={() => navigate("/campaigns")}
+        />
       ) : path === "/verify-email" ? (
         <ChallengePage apiBaseUrl={config.apiBaseUrl} purpose="verify" />
       ) : path === "/reset-password" ? (
@@ -113,8 +137,8 @@ export function App({ config }: AppProps) {
       )}
 
       <footer>
-        <span>Step 03 · Identity & Access</span>
-        <span>Сессии защищены BFF</span>
+        <span>Step 04 · Campaign & Authorization</span>
+        <span>Policy deny-by-default</span>
       </footer>
     </div>
   );

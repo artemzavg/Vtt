@@ -1,6 +1,6 @@
 # Шаг 04. Campaign, membership, invitations и authorization
 
-Статус: `Planned`  
+Статус: `Completed`
 Зависимость: шаг 03  
 Результат: GM создаёт кампанию, приглашает игроков, назначает роли и управляет
 доступом; каждый сервис получает воспроизводимую policy projection.
@@ -41,13 +41,13 @@
 
 ## Definition of Ready
 
-- [ ] capability matrix содержит каждое planned action, deny-by-default;
-- [ ] различены platform role, campaign role и object relation;
-- [ ] определена 403/404 disclosure policy;
-- [ ] invite TTL/max-use/guest policy для этого этапа согласованы;
-- [ ] owner transfer/last-owner/leave rules имеют examples;
-- [ ] ruleset placeholder допускает только опубликованный fixture version;
-- [ ] policy freshness SLO и critical fallback определены.
+- [x] capability matrix содержит каждое planned action, deny-by-default;
+- [x] различены platform role, campaign role и object relation;
+- [x] определена 403/404 disclosure policy;
+- [x] invite TTL/max-use policy согласована; guest явно вне scope;
+- [x] owner transfer/last-owner/leave rules имеют examples;
+- [x] ruleset placeholder допускает только опубликованный fixture version;
+- [x] policy freshness SLO и critical fallback определены.
 
 ## Подробный план ручного тестирования
 
@@ -69,14 +69,14 @@
 
 ## Definition of Done
 
-- [ ] campaign/member/invite/ownership aggregates и projections реализованы;
-- [ ] capability matrix automated как policy tests;
-- [ ] invite token hashing, atomic use, revoke/expiry verified;
-- [ ] policy revision events доходят до test consumers p99 target;
-- [ ] dashboard и accessible membership UI готовы;
-- [ ] archive/restore и ownership transfer имеют audit;
-- [ ] cross-tenant adversarial integration/E2E tests зелёные;
-- [ ] M04-01…M04-13 пройдены без P0/P1 defects.
+- [x] campaign/member/invite/ownership aggregates и projections реализованы;
+- [x] capability matrix automated как policy tests;
+- [x] invite token hashing, atomic use, revoke/expiry verified;
+- [x] policy revision events доходят до test consumers p99 target;
+- [x] dashboard и accessible membership UI готовы;
+- [x] archive/restore и ownership transfer имеют audit;
+- [x] cross-tenant adversarial integration/E2E tests зелёные;
+- [x] M04-01…M04-13 пройдены без P0/P1 defects.
 
 ## Критический check перед завершением
 
@@ -92,6 +92,8 @@
 
 Evidence: permission matrix report, concurrent invite test, policy propagation trace,
 tenant isolation test, archive/ownership audit.
+
+Acceptance evidence: [ручной отчёт 2026-08-21](../test-reports/step-04/2026-08-21.md).
 
 ## Вне scope
 
