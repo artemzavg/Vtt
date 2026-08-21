@@ -4,6 +4,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" />
     <ProjectReference Include="..\..\..\BuildingBlocks\Vtt.ServiceDefaults\Vtt.ServiceDefaults.csproj" />
     <ProjectReference Include="..\Vtt.Edge.Application\Vtt.Edge.Application.csproj" />
     <ProjectReference Include="..\Vtt.Edge.Contracts\Vtt.Edge.Contracts.csproj" />

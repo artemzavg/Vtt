@@ -77,6 +77,7 @@ function validatePublicFieldPolicy(document, source) {
 }
 
 const openapi = await readJson("contracts/openapi/engineering-fixture.v1.json");
+const identityOpenapi = await readJson("contracts/openapi/identity-bff.v1.json");
 const asyncapi = await readJson("contracts/asyncapi/engineering-fixture.v1.json");
 const envelope = await readJson("contracts/events/event-envelope.v1.schema.json");
 const eventData = await readJson("contracts/events/engineering-probe-incremented.v1.schema.json");
@@ -101,6 +102,24 @@ const violations = [
   ...validatePublicFieldPolicy(openapi, "openapi"),
   ...validatePublicFieldPolicy(envelope, "event-envelope"),
   ...validatePublicFieldPolicy(eventData, "event-data"),
+  ...(identityOpenapi.openapi?.startsWith("3.1.")
+    ? []
+    : ["Identity BFF OpenAPI must be in the 3.1 line"]),
+  ...[
+    "registerUser",
+    "login",
+    "refreshBrowserSession",
+    "logout",
+    "getMyProfile",
+    "listMySessions",
+    "revokeSession",
+  ].filter(
+    (operationId) =>
+      !operations(identityOpenapi).some((operation) => operation.operationId === operationId),
+  ),
+  ...["sessionToken", "accessToken", "refreshToken"].filter(
+    (field) => field in (identityOpenapi.components.schemas.BrowserSession.properties ?? {}),
+  ),
 ];
 
 if (generated !== renderGeneratedClient(openapi)) {

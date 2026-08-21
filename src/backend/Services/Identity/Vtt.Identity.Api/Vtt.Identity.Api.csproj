@@ -4,6 +4,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="OpenIddict.AspNetCore" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\..\BuildingBlocks\Vtt.ServiceDefaults\Vtt.ServiceDefaults.csproj" />
     <ProjectReference Include="..\Vtt.Identity.Application\Vtt.Identity.Application.csproj" />
     <ProjectReference Include="..\Vtt.Identity.Contracts\Vtt.Identity.Contracts.csproj" />
