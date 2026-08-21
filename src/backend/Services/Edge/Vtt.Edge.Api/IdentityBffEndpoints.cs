@@ -157,6 +157,14 @@ internal static class IdentityBffEndpoints
         return ToResult(await gateway.RevokeOtherSessionsAsync(session, csrf, ct));
     }
 
+    internal static bool HasValidCsrf(HttpContext context)
+    {
+        var csrf = context.Request.Headers[CsrfHeader].ToString();
+        var csrfCookie = context.Request.Cookies[CsrfCookie] ?? string.Empty;
+        return csrf.Length > 0 && csrfCookie.Length == csrf.Length &&
+            CryptographicOperations.FixedTimeEquals(Encoding.UTF8.GetBytes(csrf), Encoding.UTF8.GetBytes(csrfCookie));
+    }
+
     private static bool TryGetSession(HttpContext context, bool requireCsrf, out string session, out string csrf)
     {
         session = context.Request.Cookies[SessionCookie] ?? string.Empty;
@@ -171,9 +179,7 @@ internal static class IdentityBffEndpoints
             return true;
         }
 
-        var csrfCookie = context.Request.Cookies[CsrfCookie] ?? string.Empty;
-        return csrf.Length > 0 && csrfCookie.Length == csrf.Length &&
-            CryptographicOperations.FixedTimeEquals(Encoding.UTF8.GetBytes(csrf), Encoding.UTF8.GetBytes(csrfCookie));
+        return HasValidCsrf(context);
     }
 
     private static void WriteSessionCookies(HttpContext context, GatewaySession session)

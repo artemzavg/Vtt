@@ -194,6 +194,28 @@ public sealed class IdentityBffTests : IClassFixture<IdentityBffTests.EdgeFactor
         Assert.Equal(exchangesBefore + 1, _factory.TokenEndpoint.ExchangeCalls);
     }
 
+    [Fact]
+    public async Task CampaignBffResolvesSessionSubjectAndEnforcesCsrf()
+    {
+        using var client = _factory.CreateClient();
+        await LoginAsync(client);
+
+        using var list = await client.GetAsync("/v1/campaigns");
+        using var rejected = await client.PostAsJsonAsync("/v1/campaigns", new { name = "Arrakis" });
+        using var acceptedRequest = new HttpRequestMessage(HttpMethod.Post, "/v1/campaigns")
+        {
+            Content = JsonContent.Create(new { name = "Arrakis" }),
+        };
+        acceptedRequest.Headers.Add("X-CSRF-Token", "csrf-token");
+        using var accepted = await client.SendAsync(acceptedRequest);
+
+        Assert.Equal(HttpStatusCode.OK, list.StatusCode);
+        Assert.Equal(HttpStatusCode.Forbidden, rejected.StatusCode);
+        Assert.Equal(HttpStatusCode.Created, accepted.StatusCode);
+        Assert.Equal(FakeGateway.UserId, _factory.CampaignGateway.LastUserId);
+        Assert.Equal(2, _factory.CampaignGateway.Calls);
+    }
+
     private static async Task LoginAsync(HttpClient client)
     {
         using var response = await client.PostAsJsonAsync("/v1/auth/login", new
@@ -216,12 +238,14 @@ public sealed class IdentityBffTests : IClassFixture<IdentityBffTests.EdgeFactor
     public sealed class EdgeFactory : WebApplicationFactory<ApiAssemblyMarker>
     {
         public FakeGateway Gateway { get; } = new();
+        public FakeCampaignGateway CampaignGateway { get; } = new();
         public FakeTokenEndpoint TokenEndpoint { get; } = new();
 
         protected override void ConfigureWebHost(IWebHostBuilder builder) =>
             builder.ConfigureTestServices(services =>
             {
                 services.AddSingleton<IIdentityGateway>(Gateway);
+                services.AddSingleton<ICampaignGateway>(CampaignGateway);
                 services.AddSingleton<IDataProtectionProvider>(
                     new EphemeralDataProtectionProvider());
                 services.PostConfigure<OpenIdConnectOptions>("vtt.oidc", options =>
@@ -244,6 +268,23 @@ public sealed class IdentityBffTests : IClassFixture<IdentityBffTests.EdgeFactor
                     };
                 });
             });
+    }
+
+    public sealed class FakeCampaignGateway : ICampaignGateway
+    {
+        public Guid LastUserId { get; private set; }
+        public int Calls { get; private set; }
+
+        public Task<CampaignGatewayResponse> SendAsync(
+            Guid userId,
+            CampaignGatewayRequest request,
+            CancellationToken cancellationToken)
+        {
+            Calls++;
+            LastUserId = userId;
+            var status = request.Method == HttpMethod.Post ? 201 : 200;
+            return Task.FromResult(new CampaignGatewayResponse(status, "{}", "application/json"));
+        }
     }
 
     public sealed class FakeTokenEndpoint : HttpMessageHandler

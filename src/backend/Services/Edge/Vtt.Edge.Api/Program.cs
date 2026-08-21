@@ -54,6 +54,7 @@ app.UseRateLimiter();
 app.UseAuthentication();
 app.MapVttServiceDefaults(ServiceName, mapFoundationOpenApi: false, mapRoot: false);
 app.MapIdentityBff();
+app.MapCampaignBff();
 app.MapGet("/", () => Results.Ok(new { service = ServiceName, status = "ready" }));
 
 await app.RunAsync();

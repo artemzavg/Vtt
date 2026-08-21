@@ -1,0 +1,48 @@
+{
+  "openapi": "3.1.1",
+  "info": { "title": "VTT Campaign BFF API", "version": "1.0.0" },
+  "servers": [{ "url": "/api" }],
+  "paths": {
+    "/v1/campaigns": {
+      "get": { "operationId": "listCampaigns", "responses": { "200": { "description": "Caller campaign dashboard" }, "401": { "$ref": "#/components/responses/Problem" } } },
+      "post": { "operationId": "createCampaign", "requestBody": { "$ref": "#/components/requestBodies/CreateCampaign" }, "responses": { "200": { "description": "Draft campaign with caller as Owner" }, "403": { "$ref": "#/components/responses/Problem" } } }
+    },
+    "/v1/campaigns/{campaignId}": {
+      "parameters": [{ "$ref": "#/components/parameters/CampaignId" }],
+      "get": { "operationId": "getCampaign", "responses": { "200": { "description": "Campaign and effective capabilities" }, "404": { "$ref": "#/components/responses/Problem" } } },
+      "patch": { "operationId": "updateCampaign", "parameters": [{ "$ref": "#/components/parameters/IfMatch" }], "responses": { "200": { "description": "Updated campaign" }, "409": { "$ref": "#/components/responses/Problem" } } }
+    },
+    "/v1/campaigns/{campaignId}/members": {
+      "parameters": [{ "$ref": "#/components/parameters/CampaignId" }],
+      "get": { "operationId": "listCampaignMembers", "responses": { "200": { "description": "Authorized member directory" } } }
+    },
+    "/v1/campaigns/{campaignId}/members/{membershipId}": {
+      "parameters": [{ "$ref": "#/components/parameters/CampaignId" }, { "name": "membershipId", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }, { "$ref": "#/components/parameters/IfMatch" }],
+      "patch": { "operationId": "changeCampaignMember", "responses": { "200": { "description": "Role/status changed and policy revision incremented" }, "403": { "$ref": "#/components/responses/Problem" }, "409": { "$ref": "#/components/responses/Problem" } } },
+      "delete": { "operationId": "removeCampaignMember", "responses": { "204": { "description": "Member removed" }, "400": { "$ref": "#/components/responses/Problem" } } }
+    },
+    "/v1/campaigns/{campaignId}/invitations": {
+      "parameters": [{ "$ref": "#/components/parameters/CampaignId" }],
+      "get": { "operationId": "listCampaignInvitations", "responses": { "200": { "description": "Invitation metadata; raw token excluded" } } },
+      "post": { "operationId": "createCampaignInvitation", "responses": { "200": { "description": "Raw invitation token returned exactly once" } } }
+    },
+    "/v1/invitations:accept": {
+      "post": { "operationId": "acceptCampaignInvitation", "description": "Token is carried in the body to avoid URL/log leakage.", "responses": { "200": { "description": "Invitation atomically consumed" }, "400": { "$ref": "#/components/responses/Problem" } } }
+    }
+  },
+  "components": {
+    "parameters": {
+      "CampaignId": { "name": "campaignId", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } },
+      "IfMatch": { "name": "If-Match", "in": "header", "required": true, "schema": { "type": "string" } }
+    },
+    "requestBodies": {
+      "CreateCampaign": { "required": true, "content": { "application/json": { "schema": { "type": "object", "required": ["name", "locale", "timeZone"], "properties": { "name": { "type": "string", "minLength": 2, "maxLength": 120 }, "locale": { "type": "string" }, "timeZone": { "type": "string" }, "rulesetVersionId": { "type": ["string", "null"] } }, "additionalProperties": false } } } }
+    },
+    "responses": { "Problem": { "description": "RFC 9457 problem with stable code" } },
+    "securitySchemes": {
+      "browserSession": { "type": "apiKey", "in": "cookie", "name": "vtt.session" },
+      "csrf": { "type": "apiKey", "in": "header", "name": "X-CSRF-Token" }
+    }
+  },
+  "security": [{ "browserSession": [] }]
+}

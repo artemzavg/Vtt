@@ -51,4 +51,40 @@ describe("application shell", () => {
     expect(await screen.findByText("Edge API готов принимать запросы.")).toBeInTheDocument();
     expect(screen.getByText("test-commit")).toBeInTheDocument();
   });
+
+  it("renders an accessible campaign dashboard", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: true,
+        status: 200,
+        json: () =>
+          Promise.resolve([
+            {
+              campaignId: "018f0000-0000-7000-8000-000000000010",
+              ownerId: "018f0000-0000-7000-8000-000000000001",
+              name: "Арракис",
+              description: "",
+              locale: "ru-RU",
+              timeZone: "Europe/Moscow",
+              rulesetVersionId: "dnd5e-srd@1.0.0",
+              status: "Draft",
+              automationLevel: "Assisted",
+              dicePolicy: "ServerAuthoritative",
+              version: 1,
+              policyRevision: 1,
+              role: "Owner",
+              effectiveCapabilities: ["campaign.read"],
+            },
+          ]),
+      }),
+    );
+    const user = userEvent.setup();
+    const { container } = render(<App config={config} />);
+
+    await user.click(screen.getByRole("link", { name: "Кампании" }));
+
+    expect(await screen.findByText("Арракис")).toBeInTheDocument();
+    expect((await axe.run(container)).violations).toHaveLength(0);
+  });
 });

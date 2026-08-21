@@ -4,6 +4,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <ProjectReference Include="..\..\..\BuildingBlocks\Vtt.ServiceDefaults\Vtt.ServiceDefaults.csproj" />
     <ProjectReference Include="..\Vtt.Campaign.Application\Vtt.Campaign.Application.csproj" />
     <ProjectReference Include="..\Vtt.Campaign.Contracts\Vtt.Campaign.Contracts.csproj" />
